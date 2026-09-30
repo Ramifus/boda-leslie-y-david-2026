@@ -1,0 +1,207 @@
+---
+// src/components/Contador.astro
+// "Save the Date" en Great Vibes, la frase en Cinzel, y debajo la cuenta
+// regresiva hasta la boda: días, horas, minutos y segundos.
+// Los números los llena el script apenas carga y los actualiza cada
+// segundo. La Cinzel no tiene minúsculas: "Días" sale en versalitas.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Save the Date";
+const frase = "“Por una mirada, un mundo; por una sonrisa, un cielo.”";
+const llamada = "¡Solo faltan!";
+// La boda: 19 de diciembre de 2026 (la hora es la de la ceremonia)
+const fechaBoda = "2026-12-19T14:00:00";
+// ──────────────────────────────────────────────────────────────
+
+const unidades = [
+    { clave: "dias", rotulo: "Días" },
+    { clave: "horas", rotulo: "Horas" },
+    { clave: "min", rotulo: "Min" },
+    { clave: "seg", rotulo: "Seg" },
+];
+---
+
+<section id="contador-boda" class="seccion">
+    <p class="titulo font-great-vibes">{titulo}</p>
+    <p class="frase">{frase}</p>
+    <p class="llamada">{llamada}</p>
+
+    <div id="cuenta-contador" class="cuenta" data-fecha={fechaBoda}>
+        {
+            unidades.map((u, i) => (
+                <>
+                    {i > 0 && (
+                        <span class="dos-puntos" aria-hidden="true">
+                            :
+                        </span>
+                    )}
+                    <div class="unidad">
+                        <span class="numero" data-unidad={u.clave}>
+                            00
+                        </span>
+                        <span class="rotulo">{u.rotulo}</span>
+                    </div>
+                </>
+            ))
+        }
+    </div>
+</section>
+
+<style>
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 3cqw 6cqw 12cqw;
+        text-align: center;
+    }
+
+    .titulo {
+        margin: 0;
+        color: #7a2335;
+        font-size: 15cqw;
+        line-height: 1.15;
+    }
+
+    .frase {
+        margin: 4cqw auto 0;
+        max-width: 92%;
+        font-family: "Cinzel", serif;
+        font-size: 5.2cqw;
+        line-height: 1.45;
+        letter-spacing: 0.02em;
+        color: #6e5a52;
+    }
+
+    .llamada {
+        margin: 7cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 5.8cqw;
+        letter-spacing: 0.03em;
+        color: #7a2335;
+    }
+
+    .cuenta {
+        margin-top: 3cqw;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 2.4cqw;
+    }
+
+    .unidad {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 16cqw;
+    }
+
+    .numero,
+    .dos-puntos {
+        font-family: "Cinzel", serif;
+        font-size: 13cqw;
+        line-height: 1.1;
+        color: #3f4636;
+    }
+
+    /* Todos los dígitos del mismo ancho: así la cuenta no baila */
+    .numero {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .rotulo {
+        margin-top: 1cqw;
+        font-family: "Cinzel", serif;
+        font-size: 4.4cqw;
+        letter-spacing: 0.03em;
+        color: #6e5a52;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("contador-boda");
+        const cuenta = document.getElementById("cuenta-contador");
+        if (!seccion || !cuenta) return;
+
+        // ── Cuenta regresiva ───────────────────────────────────
+        const destino = new Date(cuenta.dataset.fecha ?? "").getTime();
+        const campos: Record<string, HTMLElement | null> = {};
+        for (const clave of ["dias", "horas", "min", "seg"]) {
+            campos[clave] = cuenta.querySelector(`[data-unidad="${clave}"]`);
+        }
+        const dos = (n: number) => String(n).padStart(2, "0");
+
+        const actualizar = () => {
+            const resta = Math.max(0, destino - Date.now());
+            const s = Math.floor(resta / 1000);
+            const valores: Record<string, number> = {
+                dias: Math.floor(s / 86400),
+                horas: Math.floor((s % 86400) / 3600),
+                min: Math.floor((s % 3600) / 60),
+                seg: s % 60,
+            };
+            for (const clave in valores) {
+                const el = campos[clave];
+                if (el) el.textContent = dos(valores[clave]);
+            }
+            return resta > 0;
+        };
+
+        if (!isNaN(destino) && actualizar()) {
+            const reloj = setInterval(() => {
+                if (!actualizar()) clearInterval(reloj);
+            }, 1000);
+        }
+
+        // ── Entrada ────────────────────────────────────────────
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const renglones = [
+            seccion.querySelector(".titulo"),
+            seccion.querySelector(".frase"),
+            seccion.querySelector(".llamada"),
+        ];
+        const piezas = Array.from(
+            cuenta.querySelectorAll(".unidad, .dos-puntos"),
+        );
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 80%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl.fromTo(
+            renglones,
+            { opacity: 0, y: 16 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.9,
+                stagger: 0.2,
+                ease: "power2.out",
+            },
+        ).fromTo(
+            piezas,
+            { opacity: 0, y: 14 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.7,
+                stagger: 0.08,
+                ease: "power2.out",
+            },
+            0.6,
+        );
+    });
+</script>

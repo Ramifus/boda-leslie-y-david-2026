@@ -1,0 +1,715 @@
+---
+// src/components/Confirmar.astro
+// La foto de los novios rasgada arriba y abajo, la franja de papel con el
+// saludo, el pedido de confirmación con su botón, el pase y el cierre con
+// el monograma dentro de la guirnalda.
+//
+// Medidas del diseño, en % del ancho de la columna:
+//   banda   27% de alto · botón 75% de ancho
+
+/*
+   Cuántos lugares reserva la invitación. Se pasa desde Invitacion.astro
+   —<Confirmar pases={2} />— para no tener que venir a editar acá adentro
+   cada vez que cambia el pase de un invitado.
+
+   En 0 (o sin pasar nada) la invitación va SIN pase: no se dibuja la
+   barrita. Es la del index, la que se comparte en un grupo.
+*/
+export interface Props {
+    pases?: number;
+}
+const { pases = 0 } = Astro.props;
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const foto = "/imagenes/foto3.webp";
+const titulo = "Querida Familia Y Amigos";
+
+const parrafos = [
+    "Nos llena de felicidad poder compartir con ustedes este momento tan especial.",
+    "Con la esperanza de que hagamos de este día un recuerdo inolvidable.",
+    "Los esperamos con los corazones llenos de emoción, listos para celebrar con amor y crear memorias que permanezcan por siempre.",
+];
+
+const textoBoton = "Confirmar asistencia";
+const cierre = "Te esperamos";
+const monograma = "S & A";
+
+/*
+   El botón abre WhatsApp con el mensaje ya escrito. El número va con el
+   código de país y sin el + ni espacios, que es como lo pide wa.me.
+   Los nombres y la fecha salen de estas mismas constantes, así que si
+   alguna cambia, el mensaje se actualiza solo.
+*/
+const telefono = "59161006490";
+const novios = "Sebastián y Adriana";
+const fechaBoda = "19 de septiembre de 2026";
+const mensaje = `Me complace confirmar mi asistencia a la boda de ${novios}, el ${fechaBoda}.`;
+const enlaceConfirmar = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+
+/*
+   El pase se arma solo con el número que llega por props: 1 da "Pase para
+   una persona" y 2 "Pase para dos personas". Si hiciera falta un número
+   más alto que los de la lista, cae al dígito ("Pase para 12 personas").
+   En 0 queda en null y más abajo no se dibuja nada.
+*/
+const enLetras = [
+    "", // el 0 no se usa: está para que el 1 caiga en "una"
+    "una",
+    "dos",
+    "tres",
+    "cuatro",
+    "cinco",
+    "seis",
+    "siete",
+    "ocho",
+    "nueve",
+    "diez",
+];
+const cantidad = enLetras[pases] ?? String(pases);
+const pase =
+    pases > 0
+        ? `Pase para ${cantidad} ${pases === 1 ? "persona" : "personas"}`
+        : null;
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="confirmar" class="seccion">
+    <!-- La foto va a sangre y rasgada arriba y abajo -->
+    <img
+        id="foto-confirmar"
+        src={foto}
+        alt="Sebastián y Adriana de la mano"
+        class="foto"
+    />
+
+    <div id="banda-confirmar" class="banda">
+        <h2 class="titulo font-elegant">{titulo}</h2>
+    </div>
+
+    <div id="cuerpo-confirmar" class="cuerpo">
+        <div class="parrafos font-cormorant">
+            {parrafos.map((p) => <p>{p}</p>)}
+        </div>
+
+        <a
+            class="boton font-cormorant"
+            href={enlaceConfirmar}
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            {textoBoton}
+        </a>
+
+        {pase && <p class="pase font-cormorant">{pase}</p>}
+
+        <p class="cierre font-cormorant">{cierre}</p>
+    </div>
+
+    <!--
+       La guirnalda va montada sobre una tira de papel angosta: la tira le
+       llega a poco más de la mitad y la corona se sale por arriba y por
+       abajo, como en el diseño.
+    -->
+    <div id="zona-monograma" class="zona-monograma">
+        <div class="banda-monograma" aria-hidden="true"></div>
+
+        <div class="monograma">
+            <img
+                src="/imagenes/guirnalda2.png"
+                alt=""
+                aria-hidden="true"
+                class="guirnalda"
+            />
+            <span class="iniciales font-elegant">{monograma}</span>
+        </div>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 0 0 3rem;
+    }
+
+    /*
+       La foto, a sangre y rasgada por los dos lados. El de arriba es el
+       mismo trazo de abajo espejado (y = 100 - y), así el mordisco mide
+       los mismos píxeles arriba y abajo; por ahí asoma el fondo de la
+       página.
+    */
+    /*
+       z-index 1: la franja de abajo se le mete por debajo con un margen
+       negativo, y sin esto le pasaba por encima y le tapaba el rasgado —
+       el corte se veía como una línea recta. Con la foto adelante, por el
+       desgarro asoma el papel crema de la franja.
+    */
+    .foto {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        clip-path: polygon(
+            0.00% 3.81%,
+            1.82% 3.65%,
+            3.64% 2.43%,
+            5.45% 2.98%,
+            7.27% 3.04%,
+            9.09% 3.78%,
+            10.91% 3.13%,
+            12.73% 3.04%,
+            14.55% 2.87%,
+            16.36% 2.35%,
+            18.18% 1.30%,
+            20.00% 1.23%,
+            21.82% 0.30%,
+            23.64% 0.96%,
+            25.45% 1.62%,
+            27.27% 1.75%,
+            29.09% 2.47%,
+            30.91% 4.01%,
+            32.73% 3.33%,
+            34.55% 3.15%,
+            36.36% 2.12%,
+            38.18% 2.10%,
+            40.00% 2.41%,
+            41.82% 1.92%,
+            43.64% 1.39%,
+            45.45% 2.43%,
+            47.27% 3.91%,
+            49.09% 3.40%,
+            50.91% 2.26%,
+            52.73% 3.53%,
+            54.55% 2.91%,
+            56.36% 3.32%,
+            58.18% 5.00%,
+            60.00% 2.44%,
+            61.82% 2.36%,
+            63.64% 2.50%,
+            65.45% 3.83%,
+            67.27% 3.52%,
+            69.09% 3.62%,
+            70.91% 3.27%,
+            72.73% 2.87%,
+            74.55% 3.53%,
+            76.36% 3.80%,
+            78.18% 3.82%,
+            80.00% 3.74%,
+            81.82% 2.55%,
+            83.64% 4.14%,
+            85.45% 3.35%,
+            87.27% 2.18%,
+            89.09% 1.26%,
+            90.91% 1.03%,
+            92.73% 1.47%,
+            94.55% 2.00%,
+            96.36% 3.13%,
+            98.18% 2.53%,
+            100.00% 3.49%,
+            100.00% 96.51%,
+            98.18% 97.47%,
+            96.36% 96.87%,
+            94.55% 98.00%,
+            92.73% 98.53%,
+            90.91% 98.97%,
+            89.09% 98.74%,
+            87.27% 97.82%,
+            85.45% 96.65%,
+            83.64% 95.86%,
+            81.82% 97.45%,
+            80.00% 96.26%,
+            78.18% 96.18%,
+            76.36% 96.20%,
+            74.55% 96.47%,
+            72.73% 97.13%,
+            70.91% 96.73%,
+            69.09% 96.38%,
+            67.27% 96.48%,
+            65.45% 96.17%,
+            63.64% 97.50%,
+            61.82% 97.64%,
+            60.00% 97.56%,
+            58.18% 95.00%,
+            56.36% 96.68%,
+            54.55% 97.09%,
+            52.73% 96.47%,
+            50.91% 97.74%,
+            49.09% 96.60%,
+            47.27% 96.09%,
+            45.45% 97.57%,
+            43.64% 98.61%,
+            41.82% 98.08%,
+            40.00% 97.59%,
+            38.18% 97.90%,
+            36.36% 97.88%,
+            34.55% 96.85%,
+            32.73% 96.67%,
+            30.91% 95.99%,
+            29.09% 97.53%,
+            27.27% 98.25%,
+            25.45% 98.38%,
+            23.64% 99.04%,
+            21.82% 99.70%,
+            20.00% 98.77%,
+            18.18% 98.70%,
+            16.36% 97.65%,
+            14.55% 97.13%,
+            12.73% 96.96%,
+            10.91% 96.87%,
+            9.09% 96.22%,
+            7.27% 96.96%,
+            5.45% 97.02%,
+            3.64% 97.57%,
+            1.82% 96.35%,
+            0.00% 96.19%
+        );
+    }
+
+    /*
+       La franja del saludo. El margen negativo la mete debajo del rasgado
+       de la foto, así no queda una línea de papel entre las dos.
+    */
+    .banda {
+        position: relative;
+        width: 100%;
+        margin-top: -2rem;
+        background: #f7f3d3;
+        padding: 2.4rem 1.6rem 2.6rem;
+        clip-path: polygon(
+            0 0,
+            100% 0,
+            100.00% 96.19%,
+            98.18% 94.32%,
+            96.36% 94.01%,
+            94.55% 92.78%,
+            92.73% 95.55%,
+            90.91% 96.85%,
+            89.09% 97.09%,
+            87.27% 98.27%,
+            85.45% 99.46%,
+            83.64% 97.78%,
+            81.82% 97.66%,
+            80.00% 95.78%,
+            78.18% 94.84%,
+            76.36% 94.53%,
+            74.55% 94.36%,
+            72.73% 93.20%,
+            70.91% 94.53%,
+            69.09% 94.63%,
+            67.27% 95.62%,
+            65.45% 93.42%,
+            63.64% 93.15%,
+            61.82% 93.72%,
+            60.00% 95.45%,
+            58.18% 94.36%,
+            56.36% 96.40%,
+            54.55% 97.35%,
+            52.73% 98.15%,
+            50.91% 97.73%,
+            49.09% 96.07%,
+            47.27% 93.98%,
+            45.45% 92.54%,
+            43.64% 95.41%,
+            41.82% 93.27%,
+            40.00% 93.13%,
+            38.18% 93.16%,
+            36.36% 93.65%,
+            34.55% 94.83%,
+            32.73% 94.12%,
+            30.91% 93.48%,
+            29.09% 93.67%,
+            27.27% 93.11%,
+            25.45% 95.50%,
+            23.64% 95.76%,
+            21.82% 95.60%,
+            20.00% 91.00%,
+            18.18% 94.03%,
+            16.36% 94.76%,
+            14.55% 93.65%,
+            12.73% 95.93%,
+            10.91% 93.87%,
+            9.09% 92.96%,
+            7.27% 95.62%,
+            5.45% 97.49%,
+            3.64% 96.54%,
+            1.82% 95.66%,
+            0.00% 96.23%
+        );
+    }
+
+    /* Mismo tamaño y color que los otros títulos de la invitación */
+    .titulo {
+        margin: 0 auto;
+        text-align: center;
+        color: #643e1a;
+        font-size: clamp(2.35rem, 10.7vw, 2.9rem);
+        line-height: 1.25;
+    }
+
+    /* ── El cuerpo ─────────────────────────────────────────── */
+    .cuerpo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2.2rem 1.4rem 0;
+        text-align: center;
+    }
+
+    .parrafos {
+        color: #643e1a;
+        font-size: clamp(1.1rem, 4.8vw, 1.25rem);
+        line-height: 1.6;
+    }
+
+    /* El aire entre párrafos, no antes del primero */
+    .parrafos p + p {
+        margin-top: 1.1rem;
+    }
+
+    /*
+       El botón macizo del diseño: marrón oscuro, ancho, con las letras
+       separadas. Es la acción principal de toda la invitación.
+    */
+    .boton {
+        display: inline-block;
+        width: 75%;
+        max-width: 20rem;
+        box-sizing: border-box;
+        margin-top: 2rem;
+        padding: 0.7rem 1rem;
+        text-align: center;
+        text-decoration: none;
+        text-transform: uppercase;
+        /*
+           Letras juntas y cuerpo contenido: "CONFIRMAR ASISTENCIA" son 20
+           caracteres y con más espaciado se salía de la barra.
+        */
+        letter-spacing: 0.04em;
+        color: #fdf8e6;
+        background: #6b4e14;
+        border-radius: 8px;
+        font-size: clamp(0.95rem, 4.1vw, 1.1rem);
+        line-height: 1.4;
+        box-shadow: 0 6px 16px rgba(107, 78, 20, 0.3);
+        transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            background-color 0.25s ease;
+    }
+
+    .boton:hover {
+        background: #7d5c1c;
+        box-shadow: 0 9px 20px rgba(107, 78, 20, 0.42);
+    }
+
+    .boton:active {
+        transform: scale(0.98);
+        box-shadow: 0 3px 8px rgba(107, 78, 20, 0.3);
+    }
+
+    /* El pase: la misma barra pero más angosta y sin versales */
+    .pase {
+        display: inline-block;
+        margin-top: 0.7rem;
+        padding: 0.5rem 1.6rem;
+        color: #fdf8e6;
+        background: #6b4e14;
+        border-radius: 8px;
+        font-size: clamp(1rem, 4.4vw, 1.15rem);
+        line-height: 1.4;
+    }
+
+    .cierre {
+        margin-top: 2.2rem;
+        color: #643e1a;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: clamp(1.15rem, 5vw, 1.35rem);
+        line-height: 1.3;
+    }
+
+    /* ── El monograma ──────────────────────────────────────── */
+    /*
+       Su propia franja de papel, rasgada arriba y abajo, como en el
+       diseño: la guirnalda no se apoya sobre el fondo sino sobre el papel.
+    */
+    /*
+       La zona lleva proporción fija (alto = la mitad del ancho) para que
+       los porcentajes de adentro tengan contra qué medirse: sin un alto
+       definido, el alto en % de la tira no resolvería.
+    */
+    .zona-monograma {
+        position: relative;
+        width: 100%;
+        margin-top: 1.4rem;
+        aspect-ratio: 100 / 50;
+    }
+
+    /*
+       La tira de papel: angosta y centrada en vertical. Mide el 62% del
+       alto de la zona, o sea poco más de la mitad de la guirnalda, que es
+       la proporción del diseño.
+    */
+    .banda-monograma {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 62%;
+        transform: translateY(-50%);
+        background: #f7f3d3;
+        clip-path: polygon(
+            0.00% 5.47%,
+            1.82% 5.16%,
+            3.64% 4.22%,
+            5.45% 2.34%,
+            7.27% 2.22%,
+            9.09% 0.54%,
+            10.91% 1.73%,
+            12.73% 2.91%,
+            14.55% 3.15%,
+            16.36% 4.45%,
+            18.18% 7.22%,
+            20.00% 5.99%,
+            21.82% 5.68%,
+            23.64% 3.81%,
+            25.45% 3.77%,
+            27.27% 4.34%,
+            29.09% 3.46%,
+            30.91% 2.51%,
+            32.73% 4.38%,
+            34.55% 7.04%,
+            36.36% 6.13%,
+            38.18% 4.07%,
+            40.00% 6.35%,
+            41.82% 5.24%,
+            43.64% 5.97%,
+            45.45% 9.00%,
+            47.27% 4.40%,
+            49.09% 4.24%,
+            50.91% 4.50%,
+            52.73% 6.89%,
+            54.55% 6.33%,
+            56.36% 6.52%,
+            58.18% 5.88%,
+            60.00% 5.17%,
+            61.82% 6.35%,
+            63.64% 6.84%,
+            65.45% 6.87%,
+            67.27% 6.73%,
+            69.09% 4.59%,
+            70.91% 7.46%,
+            72.73% 6.02%,
+            74.55% 3.93%,
+            76.36% 2.27%,
+            78.18% 1.85%,
+            80.00% 2.65%,
+            81.82% 3.60%,
+            83.64% 5.64%,
+            85.45% 4.55%,
+            87.27% 6.28%,
+            89.09% 6.85%,
+            90.91% 6.58%,
+            92.73% 4.38%,
+            94.55% 5.37%,
+            96.36% 5.47%,
+            98.18% 6.80%,
+            100.00% 5.64%,
+            100.00% 94.12%,
+            98.18% 93.48%,
+            96.36% 93.67%,
+            94.55% 93.11%,
+            92.73% 95.50%,
+            90.91% 95.76%,
+            89.09% 95.60%,
+            87.27% 91.00%,
+            85.45% 94.03%,
+            83.64% 94.76%,
+            81.82% 93.65%,
+            80.00% 95.93%,
+            78.18% 93.87%,
+            76.36% 92.96%,
+            74.55% 95.62%,
+            72.73% 97.49%,
+            70.91% 96.54%,
+            69.09% 95.66%,
+            67.27% 96.23%,
+            65.45% 96.19%,
+            63.64% 94.32%,
+            61.82% 94.01%,
+            60.00% 92.78%,
+            58.18% 95.55%,
+            56.36% 96.85%,
+            54.55% 97.09%,
+            52.73% 98.27%,
+            50.91% 99.46%,
+            49.09% 97.78%,
+            47.27% 97.66%,
+            45.45% 95.78%,
+            43.64% 94.84%,
+            41.82% 94.53%,
+            40.00% 94.36%,
+            38.18% 93.20%,
+            36.36% 94.53%,
+            34.55% 94.63%,
+            32.73% 95.62%,
+            30.91% 93.42%,
+            29.09% 93.15%,
+            27.27% 93.72%,
+            25.45% 95.45%,
+            23.64% 94.36%,
+            21.82% 96.40%,
+            20.00% 97.35%,
+            18.18% 98.15%,
+            16.36% 97.73%,
+            14.55% 96.07%,
+            12.73% 93.98%,
+            10.91% 92.54%,
+            9.09% 95.41%,
+            7.27% 93.27%,
+            5.45% 93.13%,
+            3.64% 93.16%,
+            1.82% 93.65%,
+            0.00% 94.83%
+        );
+    }
+
+    /* La guirnalda, centrada sobre la tira y saliéndose por los dos lados */
+    .monograma {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        z-index: 1;
+        width: 42%;
+        max-width: 12rem;
+        transform: translate(-50%, -50%);
+        /* Las iniciales se miden contra la guirnalda */
+        container-type: inline-size;
+    }
+
+    .guirnalda {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+    }
+
+    .iniciales {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #643e1a;
+        font-size: 22cqw;
+        line-height: 1;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const banda = document.getElementById("banda-confirmar");
+        const cuerpo = document.getElementById("cuerpo-confirmar");
+        const foto = document.getElementById("foto-confirmar");
+        if (!banda || !cuerpo) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        /*
+           La foto arranca ampliada y se va acomodando hasta su tamaño,
+           igual que en las otras secciones.
+
+           El toggleActions termina en "none" y no en "reset" a propósito:
+           con reset, al volver a subir la foto quedaba otra vez al 112% y
+           se veía recortada. Así, una vez que llegó a su tamaño, se queda
+           entera.
+        */
+        if (foto) {
+            gsap.fromTo(
+                foto,
+                { scale: 1.12, opacity: 0 },
+                {
+                    scale: 1,
+                    opacity: 1,
+                    duration: 2.2,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: foto,
+                        start: "top 92%",
+                        toggleActions: "play none none none",
+                    },
+                },
+            );
+        }
+
+        gsap.fromTo(
+            banda.querySelector(".titulo"),
+            { opacity: 0, y: 16 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: banda,
+                    start: "top 85%",
+                    toggleActions: "play none none reset",
+                },
+            },
+        );
+
+        gsap.fromTo(
+            [
+                ...cuerpo.querySelectorAll(".parrafos p"),
+                cuerpo.querySelector(".boton"),
+                cuerpo.querySelector(".pase"),
+                cuerpo.querySelector(".cierre"),
+            ].filter(Boolean),
+            { opacity: 0, y: 16 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.7,
+                stagger: 0.11,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: cuerpo,
+                    start: "top 88%",
+                    toggleActions: "play none none reset",
+                },
+            },
+        );
+
+        /*
+           El monograma solo se desvanece: NO se le puede animar la
+           posición, porque va centrado con un translate y GSAP escribiría
+           su propio transform encima, corriéndolo de la tira de papel.
+        */
+        const zona = document.getElementById("zona-monograma");
+        if (zona) {
+            gsap.fromTo(
+                zona.children,
+                { opacity: 0 },
+                {
+                    opacity: 1,
+                    duration: 0.9,
+                    stagger: 0.15,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: zona,
+                        start: "top 92%",
+                        toggleActions: "play none none reset",
+                    },
+                },
+            );
+        }
+    });
+</script>

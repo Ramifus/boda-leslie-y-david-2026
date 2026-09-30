@@ -1,0 +1,592 @@
+---
+// src/components/Portada.astro - Portada con la foto de los novios arriba
+// (se funde con el papel), los nombres, y el sobre cerrado con la tarjeta
+// verde asomando por delante. Todo el grupo sobre + tarjeta es el botón.
+// El sello de lacre es parte de /imagenes/sobre.png; para que quede POR
+// ENCIMA de la tarjeta se repite la misma imagen recortada al sello.
+// La melodía arranca al tocar el sobre (ver abrirTodo, en el script): es
+// el único momento en que el navegador deja sonar un audio, porque hace
+// falta un gesto de la persona. Desde ahí la maneja BotonMusica.astro.
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const novios = "Leslie & David";
+const llamada = "Da clic al sobre para abrir";
+
+const tituloTarjeta = "Nuestra Boda";
+const fechaMes = "dic";
+const fechaDia = "19";
+const fechaAnio = "2026";
+const esperamos = "¡Te esperamos!";
+const frase1 = "Será un honor celebrar";
+const frase2 = "este día contigo";
+// ──────────────────────────────────────────────────────────────
+---
+
+<!-- CAPA BLANCA DE TRANSICIÓN — tapa el fondo del layout durante el fade -->
+<div
+    id="capa-blanca"
+    style="
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(#ffffff, #ffffff);
+    z-index: 8499;
+    opacity: 1;
+    pointer-events: none;
+"
+>
+</div>
+
+<!--
+   La portada va por debajo del botón flotante de música (z 9000) para que
+   el control siga accesible mientras la portada se desvanece.
+-->
+<section
+    class="fixed inset-0 w-full h-screen flex justify-center z-[8500]"
+    id="portada-section"
+    style="background-image: linear-gradient(#efe9e1, #efe9e1);"
+>
+    <!-- Columna móvil: el diseño nunca se estira en tablet / PC -->
+    <div class="marco">
+        <!-- Foto de arriba: se funde con el papel por abajo -->
+        <div class="foto" id="portada-foto" aria-hidden="true">
+            <img src="/imagenes/foto1.png" alt="" />
+        </div>
+
+        <!-- Aire para que los nombres caigan sobre el fundido de la foto -->
+        <div class="aire-arriba"></div>
+
+        <div class="encabezado" id="encabezado-portada">
+            <p class="novios font-great-vibes">{novios}</p>
+            <p class="llamada" id="llamada-portada">{llamada}</p>
+        </div>
+
+        <button
+            id="btn-sobre"
+            type="button"
+            aria-label="Abrir la invitación"
+            class="grupo"
+        >
+            <div class="grupo-flota" id="grupo-flota">
+                <!-- El sobre, con sus flores, monograma y sello -->
+                <img
+                    src="/imagenes/sobre.png"
+                    alt=""
+                    width="998"
+                    height="679"
+                    class="sobre"
+                    id="sobre"
+                />
+
+                <!-- Tarjeta verde por delante del sobre -->
+                <div class="tarjeta" id="tarjeta">
+                    <p class="t-titulo font-great-vibes">{tituloTarjeta}</p>
+                    <p class="t-fecha">
+                        <span>{fechaMes}</span>
+                        <i aria-hidden="true"></i>
+                        <span class="t-dia">{fechaDia}</span>
+                        <i aria-hidden="true"></i>
+                        <span>{fechaAnio}</span>
+                    </p>
+
+                    <!-- Anillos -->
+                    <svg
+                        class="t-anillos"
+                        viewBox="0 0 64 44"
+                        aria-hidden="true"
+                    >
+                        <defs>
+                            <linearGradient
+                                id="oro-anillos"
+                                x1="0"
+                                y1="0"
+                                x2="1"
+                                y2="1"
+                            >
+                                <stop offset="0%" stop-color="#f3dc9a"></stop>
+                                <stop offset="50%" stop-color="#c9a24e"></stop>
+                                <stop offset="100%" stop-color="#8f6a26"></stop>
+                            </linearGradient>
+                        </defs>
+                        <circle
+                            cx="24"
+                            cy="26"
+                            r="14"
+                            fill="none"
+                            stroke="url(#oro-anillos)"
+                            stroke-width="3.4"></circle>
+                        <circle
+                            cx="40"
+                            cy="26"
+                            r="14"
+                            fill="none"
+                            stroke="url(#oro-anillos)"
+                            stroke-width="3.4"></circle>
+                        <path
+                            d="M36 9 L40 4 L44 9 L40 12 Z"
+                            fill="#f6f1e4"
+                            stroke="#c9a24e"
+                            stroke-width="1"></path>
+                    </svg>
+
+                    <p class="t-esperamos font-great-vibes">{esperamos}</p>
+                    <p class="t-frase">
+                        <span>{frase1}</span>
+                        <span>{frase2}</span>
+                    </p>
+
+                    <!-- Flor colgando en la esquina de abajo a la derecha -->
+                    <img
+                        src="/imagenes/florabajo.png"
+                        alt=""
+                        width="828"
+                        height="1476"
+                        class="flor-abajo"
+                        id="flor-abajo"
+                    />
+                </div>
+
+                <!-- El sello otra vez, recortado, para que pise la tarjeta -->
+                <img
+                    src="/imagenes/sobre.png"
+                    alt=""
+                    width="998"
+                    height="679"
+                    class="sobre sello"
+                    aria-hidden="true"
+                />
+            </div>
+        </button>
+
+        <div class="aire-abajo"></div>
+    </div>
+</section>
+
+<style>
+    body.portada-activa {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
+    #capa-blanca {
+        transition: opacity 0.4s ease;
+    }
+
+    /* ── Marco / fondo ──────────────────────────────────────── */
+    .marco {
+        /* Los tamaños en cqw se miden contra esta columna, no la ventana */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        max-width: 430px;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /*
+           El papel va declarado como degradado y no como color: el modo
+           oscuro forzado oscurece colores pero respeta las imágenes.
+        */
+        background-image: linear-gradient(180deg, #f6f1ea 0%, #f3ede4 100%);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── Foto de arriba ─────────────────────────────────────── */
+    .foto {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 33svh;
+        z-index: 0;
+        pointer-events: none;
+        -webkit-mask-image: linear-gradient(
+            180deg,
+            #000 0%,
+            #000 62%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        mask-image: linear-gradient(
+            180deg,
+            #000 0%,
+            #000 62%,
+            rgba(0, 0, 0, 0) 100%
+        );
+    }
+
+    .foto img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 48%;
+    }
+
+    /*
+       ── Espacios ──────────────────────────────────────────────
+       El de arriba mide casi lo mismo que la foto: los nombres quedan
+       DEBAJO de ella, apenas rozando el fundido, no encima de la pareja.
+    */
+    .aire-arriba {
+        flex: 0 0 auto;
+        height: 31svh;
+    }
+
+    .aire-abajo {
+        flex: 1 1 auto;
+        min-height: 2svh;
+    }
+
+    /* ── Nombres y llamada ──────────────────────────────────── */
+    .encabezado {
+        position: relative;
+        z-index: 2;
+        flex: 0 0 auto;
+        width: 100%;
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .novios {
+        margin: 0;
+        color: #7a2335;
+        font-size: 13cqw;
+        line-height: 1.15;
+    }
+
+    .llamada {
+        margin: 0.4rem 0 0;
+        font-family: "Cormorant Garamond", serif;
+        font-variant: small-caps;
+        font-weight: 600;
+        font-size: 5cqw;
+        letter-spacing: 0.04em;
+        color: #7a2335;
+    }
+
+    /* ── Sobre + tarjeta (el botón) ─────────────────────────── */
+    .grupo {
+        /* La tarjeta y su letra se miden contra el ancho del sobre */
+        container-type: inline-size;
+        position: relative;
+        z-index: 2;
+        flex: 0 0 auto;
+        /* Achica el grupo en pantallas bajitas para que entre todo */
+        width: min(86cqw, 42svh);
+        margin-top: 2svh;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .grupo-flota {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sobre {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+        filter: drop-shadow(0 8px 14px rgba(60, 45, 25, 0.18));
+    }
+
+    /*
+       El sello de lacre (centro en 51,2% / 64,8% de la imagen del sobre)
+       recortado de una segunda copia, para que quede encima de la tarjeta.
+    */
+    .sello {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 3;
+        pointer-events: none;
+        clip-path: ellipse(10% 14.5% at 51.2% 64.8%);
+        filter: drop-shadow(0 3px 4px rgba(60, 40, 10, 0.35));
+    }
+
+    /*
+       La tarjeta arranca a la altura del sello: el margen negativo (en %
+       del ancho) la sube sobre la parte de abajo del sobre.
+    */
+    .tarjeta {
+        position: relative;
+        z-index: 2;
+        width: 83%;
+        margin-top: -22%;
+        padding: 12cqw 6cqw 7cqw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        color: #f4efe3;
+        background-image:
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #4d5c3a 0%, #46553a 100%);
+        box-shadow: 0 12px 26px rgba(40, 50, 28, 0.3);
+    }
+
+    .t-titulo {
+        margin: 0;
+        font-size: 11cqw;
+        line-height: 1.1;
+        color: #f7f2e6;
+    }
+
+    .t-fecha {
+        margin: 1.2cqw 0 0;
+        display: flex;
+        align-items: center;
+        gap: 2.6cqw;
+        font-family: "Cormorant Garamond", serif;
+        font-variant: small-caps;
+        font-weight: 600;
+        font-size: 5.4cqw;
+        letter-spacing: 0.08em;
+        color: #efe8d6;
+    }
+
+    .t-fecha i {
+        display: block;
+        width: 1px;
+        height: 6cqw;
+        background-image: linear-gradient(#d8c9a0, #d8c9a0);
+        opacity: 0.8;
+    }
+
+    .t-dia {
+        font-size: 8.4cqw;
+        line-height: 1;
+    }
+
+    .t-anillos {
+        display: block;
+        width: 15cqw;
+        height: auto;
+        margin: 3.4cqw 0 2cqw;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    }
+
+    .t-esperamos {
+        margin: 0;
+        font-size: 8.6cqw;
+        line-height: 1.15;
+        color: #f7f2e6;
+    }
+
+    .t-frase {
+        margin: 1.6cqw 0 0;
+        font-family: "Cormorant Garamond", serif;
+        font-variant: small-caps;
+        font-weight: 600;
+        font-size: 5.3cqw;
+        letter-spacing: 0.05em;
+        line-height: 1.2;
+        color: #efe8d6;
+    }
+
+    .t-frase span {
+        display: block;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        position: absolute;
+         right: -6%;
+        bottom: -18%;
+        width: 19%;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Quien pidió menos movimiento, recibe menos movimiento */
+    @media (prefers-reduced-motion: reduce) {
+        .grupo-flota {
+            animation: none;
+        }
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+
+    if (typeof window !== "undefined") {
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("portada-activa");
+
+            const boton = document.getElementById("btn-sobre");
+            const flota = document.getElementById("grupo-flota");
+            const foto = document.getElementById("portada-foto");
+            const encabezado = document.getElementById("encabezado-portada");
+            const sobre = document.getElementById("sobre");
+            const tarjeta = document.getElementById("tarjeta");
+            const flor = document.getElementById("flor-abajo");
+            const seccion = document.getElementById("portada-section");
+            const capaBlanca = document.getElementById("capa-blanca");
+            if (!boton || !flota || !tarjeta) return;
+
+            const menosMovimiento = window.matchMedia(
+                "(prefers-reduced-motion: reduce)",
+            ).matches;
+
+            let abriendo = false;
+
+            // ── Estado inicial ──────────────────────────────────────
+            gsap.set(foto, { opacity: 0, scale: 1.06 });
+            if (encabezado)
+                gsap.set(encabezado.children, { opacity: 0, y: 12 });
+            gsap.set(flota, { opacity: 0, y: 40 });
+            gsap.set(tarjeta, { y: 24 });
+            gsap.set(flor, { opacity: 0, rotate: -8, transformOrigin: "50% 0%" });
+
+            // ── Entrada ─────────────────────────────────────────────
+            const tl = gsap.timeline({ delay: 0.3 });
+
+            tl.to(foto, { opacity: 1, scale: 1, duration: 1.4, ease: "power2.out" })
+                .to(
+                    encabezado ? encabezado.children : [],
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.9,
+                        stagger: 0.18,
+                        ease: "power2.out",
+                    },
+                    0.45,
+                )
+                .to(
+                    flota,
+                    { opacity: 1, y: 0, duration: 1.1, ease: "power3.out" },
+                    0.8,
+                )
+                .to(tarjeta, { y: 0, duration: 1, ease: "power3.out" }, 1.0)
+                .to(
+                    flor,
+                    { opacity: 1, rotate: 0, duration: 1.2, ease: "power2.out" },
+                    1.4,
+                );
+
+            // ── Respiración: el sobre flota apenas ──────────────────
+            if (!menosMovimiento) {
+                tl.add(() => {
+                    gsap.to(flota, {
+                        y: -6,
+                        duration: 2.6,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut",
+                    });
+                    gsap.to(flor, {
+                        rotate: 3,
+                        duration: 3.2,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut",
+                    });
+                });
+            }
+
+            // ── Suelta el scroll y deja la invitación arrancada en el
+            //    sobre de NombresFlores, su primera sección.
+            const abrirInvitacion = () => {
+                document.body.classList.remove("portada-activa");
+                document.body.style.overflow = "auto";
+
+                const destino = document.getElementById("sobre-novios");
+                if (destino) {
+                    destino.scrollIntoView({ block: "start" });
+                } else {
+                    window.scrollTo({ top: 0 });
+                }
+
+                // Aviso para que NombresFlores recién ahora arranque su
+                // entrada (si no, se dispararía en la carga, tapada).
+                (window as any).portadaAbierta = true;
+                window.dispatchEvent(new Event("portada-abierta"));
+            };
+
+            // ── Abrir la invitación ─────────────────────────────────
+            const abrirTodo = () => {
+                if (abriendo) return;
+                abriendo = true;
+
+                gsap.killTweensOf([flota, flor]);
+
+                /*
+                   Acá arranca la música, y tiene que ser acá: los
+                   navegadores solo dejan sonar un audio si lo pide un
+                   gesto de la persona. Queda en window.audioGlobal para
+                   que el botón de la esquina maneje esta misma melodía.
+                */
+                const yaExiste = (window as any).audioGlobal as
+                    | HTMLAudioElement
+                    | undefined;
+                const melodia = yaExiste ?? new Audio("/musica/melodia2.mp3");
+                melodia.loop = true;
+                melodia.volume = 0.65;
+                (window as any).audioGlobal = melodia;
+                melodia.play().catch(() => {});
+
+                gsap.timeline()
+                    // El sobre se hunde, como si lo apretaran
+                    .to(flota, { scale: 0.96, duration: 0.22, ease: "power2.in" })
+                    .to(flota, { scale: 1, duration: 0.35, ease: "back.out(2)" })
+                    // La tarjeta sube y se agranda hacia la persona
+                    .to(
+                        tarjeta,
+                        { y: -30, scale: 1.08, duration: 0.8, ease: "power2.inOut" },
+                        0.4,
+                    )
+                    .to(
+                        [sobre, foto],
+                        { opacity: 0.35, duration: 0.7, ease: "power2.in" },
+                        0.45,
+                    )
+                    .to(
+                        encabezado ? encabezado.children : [],
+                        { opacity: 0, y: -10, duration: 0.5, ease: "power2.in" },
+                        0.4,
+                    )
+                    // Nos acercamos y la portada se va
+                    .to(
+                        flota,
+                        { scale: 1.12, duration: 0.9, ease: "power2.in" },
+                        0.9,
+                    )
+                    .to(
+                        seccion,
+                        {
+                            opacity: 0,
+                            duration: 0.6,
+                            ease: "power2.in",
+                            onStart: abrirInvitacion,
+                            onComplete: () => {
+                                seccion?.remove();
+                                // Desvanecer la capa blanca suavemente
+                                gsap.to(capaBlanca, {
+                                    opacity: 0,
+                                    duration: 0.4,
+                                    ease: "power2.out",
+                                    onComplete: () => capaBlanca?.remove(),
+                                });
+                            },
+                        },
+                        1.3,
+                    );
+            };
+
+            boton.addEventListener("click", abrirTodo);
+        });
+    }
+</script>

@@ -1,0 +1,450 @@
+---
+// src/components/Portada.astro - Portada tipo tarjeta: el sobre dorado va
+// centrado sobre el papel del fondo, los nombres escritos en la solapa y,
+// debajo del sobre, la llamada "Tenemos una noticia... pulsa aquí".
+// El sobre entero es el botón: arranca la música y baja a NombresFlores.
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// Sin tilde a propósito: la Elegant DEMO no trae "á" y el diseño tampoco
+// la lleva.
+const novio = "Sebastian";
+const novia = "Adriana";
+const union = "&";
+const llamada1 = "Tenemos una noticia...";
+// Sin tilde: la Rantera tampoco trae acentos.
+const llamada2 = "Pulsa aqui";
+// ──────────────────────────────────────────────────────────────
+---
+
+<!-- CAPA BLANCA DE TRANSICIÓN — tapa el fondo del layout durante el fade -->
+<div
+    id="capa-blanca"
+    style="
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    z-index: 8499;
+    opacity: 1;
+    pointer-events: none;
+"
+>
+</div>
+
+<!--
+   La portada va por debajo del botón flotante de música (z 9000) para que
+   el control siga accesible mientras la portada se desvanece.
+-->
+<section
+    class="fixed inset-0 w-full h-screen flex justify-center z-[8500]"
+    id="portada-section"
+    style="background-color: #e9e4dd;"
+>
+    <!-- Columna móvil: el diseño nunca se estira en tablet / PC -->
+    <div
+        class="relative w-full max-w-[430px] h-full overflow-hidden flex flex-col items-center justify-center"
+        style="background-image: url('/imagenes/fondo.webp'); background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #f9efe4; box-shadow: 0 0 40px rgba(0,0,0,0.08);"
+    >
+        <!--
+           El sobre entero es el botón. El contenedor lleva container-type
+           para que los nombres se midan contra el ancho del sobre y no
+           contra la pantalla: así la escritura cae siempre dentro de la
+           solapa, sea cual sea el celular.
+        -->
+        <button
+            id="btn-sobre"
+            type="button"
+            aria-label="Abrir la invitación"
+            class="sobre-boton"
+        >
+            <img
+                src="/imagenes/sobre.webp"
+                alt=""
+                width="1379"
+                height="932"
+                aria-hidden="true"
+                class="sobre-img"
+            />
+
+            <!-- Nombres escritos en la solapa, arriba del lacre -->
+            <span id="nombres-portada" class="bloque-nombres">
+                <span class="nombre font-elegant">{novio}</span>
+                <span class="union font-elegant">{union}</span>
+                <span class="nombre font-elegant">{novia}</span>
+            </span>
+        </button>
+
+        <!-- Llamada debajo del sobre -->
+        <p id="llamada-portada" class="llamada font-rantera">
+            <span>{llamada1}</span>
+            <span>{llamada2}</span>
+        </p>
+    </div>
+</section>
+
+<style>
+    body.portada-activa {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
+    /* La capa blanca tapa el fondo del layout siempre */
+    #capa-blanca {
+        transition: opacity 0.4s ease;
+    }
+
+    /* ── El sobre ───────────────────────────────────────────── */
+    .sobre-boton {
+        position: relative;
+        display: block;
+        width: 89%;
+        max-width: 390px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        /* Los nombres se miden contra el ancho del sobre, no de la pantalla */
+        container-type: inline-size;
+        /*
+           touch-action: none le saca el gesto al navegador mientras se
+           arrastra el sobre: sin esto, el teléfono interpreta el
+           movimiento como scroll y el sobre no sigue al dedo.
+        */
+        touch-action: none;
+        /* Sombra corrida a la derecha y abajo, como en el diseño */
+        filter: drop-shadow(6px 8px 10px rgba(60, 35, 10, 0.22));
+    }
+
+    .sobre-img {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /* ── Nombres sobre la solapa ────────────────────────────── */
+    /*
+       La solapa baja hasta el lacre (≈56% del alto), así que el bloque
+       vive en la mitad de arriba y queda centrado dentro del triángulo.
+    */
+    .bloque-nombres {
+        position: absolute;
+        left: 0;
+        right: 0;
+        /* Bien arriba en la solapa: así "Adriana" no roza el lacre */
+        top: 6%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        pointer-events: none;
+    }
+
+    .nombre,
+    .union {
+        display: block;
+        line-height: 1.1;
+        /*
+           Oro claro: en el diseño la escritura es fina y del color de la
+           cera del lacre, apenas más pálida.
+        */
+        background: linear-gradient(
+            180deg,
+            #fdf7dd 0%,
+            #f3e3ad 55%,
+            #e0c887 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 1px 2px rgba(40, 20, 5, 0.45));
+    }
+
+    /*
+       Las medidas salen del diseño: "Sebastián" ocupa poco más de un
+       cuarto del ancho del sobre, así que la letra ronda el 8,5% de ese
+       ancho y la unión, menos de la mitad.
+    */
+    .nombre {
+        font-size: 8.5cqw;
+    }
+
+    .union {
+        font-size: 3.8cqw;
+        margin: 0.15em 0 0.1em;
+    }
+
+    /* ── Llamada de abajo ───────────────────────────────────── */
+    .llamada {
+        margin-top: 1.9rem;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        line-height: 1.45;
+        font-size: clamp(1.05rem, 4.7vw, 1.3rem);
+        color: #3d300d;
+    }
+
+    .llamada span {
+        display: block;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+
+    if (typeof window !== "undefined") {
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("portada-activa");
+
+            const boton = document.getElementById("btn-sobre");
+            const nombres = document.getElementById("nombres-portada");
+            const llamada = document.getElementById("llamada-portada");
+            if (!boton || !nombres) return;
+
+            // ── Estado inicial ──────────────────────────────────────
+            gsap.set(boton, { opacity: 0, scale: 0.9, y: 14 });
+            gsap.set(nombres.children, { opacity: 0, y: 12 });
+            if (llamada) gsap.set(llamada, { opacity: 0, y: 12 });
+
+            // ── Animaciones de entrada ──────────────────────────────
+            const tl = gsap.timeline({ delay: 0.3 });
+
+            tl.to(boton, {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                duration: 0.9,
+                ease: "power3.out",
+            }).to(
+                nombres.children,
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.16,
+                    ease: "power2.out",
+                },
+                0.55,
+            );
+
+            if (llamada) {
+                tl.to(
+                    llamada,
+                    { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                    1.1,
+                );
+            }
+
+            // ── Latido sutil del sobre (invita a tocarlo) ───────────
+            tl.add(() => {
+                gsap.to(boton, {
+                    scale: 1.025,
+                    duration: 1.8,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                });
+            });
+
+            // ── Hover ───────────────────────────────────────────────
+            // El escalado va por GSAP y no con hover:scale de Tailwind:
+            // el latido de arriba escribe transform inline y le ganaría.
+            boton.addEventListener("mouseenter", () => {
+                gsap.to(boton, {
+                    scale: 1.06,
+                    duration: 0.3,
+                    ease: "power2.out",
+                });
+            });
+            boton.addEventListener("mouseleave", () => {
+                gsap.to(boton, { scale: 1, duration: 0.3, ease: "power2.out" });
+            });
+
+            const portadaSection = document.getElementById("portada-section");
+            const capaBlanca = document.getElementById("capa-blanca");
+
+            // ── Suelta el scroll y deja la invitación arrancada en el
+            //    sobre de NombresFlores, su primera sección.
+            const abrirInvitacion = () => {
+                document.body.classList.remove("portada-activa");
+                document.body.style.overflow = "auto";
+
+                // Salto seco, no suave: la portada todavía se está
+                // desvaneciendo encima y el sobre tiene que estar ya en su
+                // lugar cuando termina de irse.
+                const destino = document.getElementById("sobre-novios");
+                if (destino) {
+                    destino.scrollIntoView({ block: "start" });
+                } else {
+                    window.scrollTo({ top: 0 });
+                }
+
+                /*
+                   El aviso para que NombresFlores recién ahora arranque su
+                   entrada. Sin esto su ScrollTrigger se dispararía en la
+                   carga —la sección está arriba de todo, o sea "a la
+                   vista", aunque la portada la esté tapando— y el invitado
+                   se encontraría el sobre ya armado.
+
+                   La bandera es para el caso de que su script corra
+                   después de este: entonces no llega a escuchar el evento
+                   y necesita poder preguntar si ya se abrió.
+                */
+                (window as any).portadaAbierta = true;
+                window.dispatchEvent(new Event("portada-abierta"));
+            };
+
+            /*
+               ── Abrir la invitación ──────────────────────────────────
+               Se llega acá de dos maneras: tocando el sobre o
+               arrastrándolo hacia arriba. La bandera evita que las dos
+               lo disparen a la vez.
+            */
+            let abriendo = false;
+
+            // Estado del arrastre (se usa más abajo, en el click y en el
+            // gesto: por eso se declara acá arriba y no adentro)
+            const UMBRAL = 90; // píxeles que hay que subir para que abra
+            let arrastrando = false;
+            let huboArrastre = false;
+            let inicioY = 0;
+
+            const abrirTodo = () => {
+                if (abriendo) return;
+                abriendo = true;
+
+                gsap.killTweensOf(boton);
+
+                // La melodía de toda la invitación: el reproductor de más
+                // abajo se engancha a esta misma, no crea otra.
+                const audio = new Audio("/musica/melodia2.mp3");
+                audio.loop = true;
+                audio.volume = 0.5;
+                audio.play().catch((error) => {
+                    console.log("❌ Error al reproducir audio:", error);
+                });
+                (window as any).audioGlobal = audio;
+                (window as any).estaReproduciendoGlobal = true;
+
+                gsap.timeline()
+                    // El sobre primero se hunde, como si lo apretaran, y
+                    // recién después crece y se va.
+                    .to(boton, {
+                        scale: 0.94,
+                        duration: 0.22,
+                        ease: "power2.in",
+                    })
+                    .to(boton, {
+                        scale: 1.12,
+                        opacity: 0,
+                        duration: 0.5,
+                        ease: "power2.out",
+                    })
+                    .to(
+                        llamada,
+                        {
+                            opacity: 0,
+                            y: 10,
+                            duration: 0.4,
+                            ease: "power2.in",
+                        },
+                        0.25,
+                    )
+                    .to(
+                        portadaSection,
+                        {
+                            opacity: 0,
+                            duration: 0.5,
+                            ease: "power2.in",
+                            onStart: abrirInvitacion,
+                            onComplete: () => {
+                                portadaSection?.remove();
+                                // Desvanecer la capa blanca suavemente
+                                gsap.to(capaBlanca, {
+                                    opacity: 0,
+                                    duration: 0.4,
+                                    ease: "power2.out",
+                                    onComplete: () => capaBlanca?.remove(),
+                                });
+                            },
+                        },
+                        0.7,
+                    );
+            };
+
+            boton.addEventListener("click", () => {
+                // Si venía de un arrastre, el click no cuenta: ya se
+                // resolvió al soltar.
+                if (huboArrastre) return;
+                abrirTodo();
+            });
+
+            /*
+               ── Deslizar el sobre hacia arriba ───────────────────────
+               El sobre sigue al dedo mientras se arrastra y, si se pasa
+               del umbral, se abre solo al soltar. Si no llega, vuelve a
+               su lugar con un rebote.
+
+               Va con Pointer Events y no con touch/mouse por separado:
+               una sola implementación sirve para el dedo, el mouse y el
+               lápiz.
+            */
+            const soltar = () => {
+                if (!arrastrando) return;
+                arrastrando = false;
+                boton.classList.remove("arrastrando");
+                if (abriendo) return;
+
+                // No llegó al umbral: el sobre vuelve a su sitio
+                gsap.to(boton, {
+                    y: 0,
+                    duration: 0.5,
+                    ease: "back.out(1.6)",
+                });
+                gsap.to(llamada, { opacity: 1, duration: 0.3 });
+            };
+
+            boton.addEventListener("pointerdown", (e) => {
+                if (abriendo) return;
+                arrastrando = true;
+                huboArrastre = false;
+                inicioY = e.clientY;
+                // El latido escribe transform: hay que callarlo antes de
+                // mover el sobre a mano.
+                gsap.killTweensOf(boton);
+                boton.classList.add("arrastrando");
+                boton.setPointerCapture(e.pointerId);
+            });
+
+            boton.addEventListener("pointermove", (e) => {
+                if (!arrastrando || abriendo) return;
+
+                const dy = e.clientY - inicioY;
+                if (dy > -4) return; // solo cuenta hacia arriba
+                huboArrastre = true;
+
+                /*
+                   El sobre se va frenando: al principio acompaña al dedo
+                   y después cada vez menos, así se siente que hay un tope
+                   y no un elástico infinito.
+                */
+                const avance = Math.min(-dy, 260);
+                const suave = -(avance - avance * avance * 0.0012);
+
+                gsap.set(boton, { y: suave });
+                gsap.set(llamada, {
+                    opacity: Math.max(0, 1 - avance / UMBRAL),
+                });
+
+                if (avance >= UMBRAL) {
+                    boton.releasePointerCapture(e.pointerId);
+                    arrastrando = false;
+                    boton.classList.remove("arrastrando");
+                    abrirTodo();
+                }
+            });
+
+            boton.addEventListener("pointerup", soltar);
+            boton.addEventListener("pointercancel", soltar);
+        });
+    }
+</script>

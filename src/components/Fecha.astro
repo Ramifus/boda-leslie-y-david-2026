@@ -1,0 +1,338 @@
+---
+// src/components/Fecha.astro
+// "Acompananos este dia tan especial" y, debajo, los tres datos —día,
+// lugar y hora— sobre la mancha de acuarela, separados por dos rayas
+// blancas.
+//
+// ── De dónde salen las medidas ────────────────────────────────
+// No son a ojo: se midió el diseño renglón por renglón y se cruzó cada
+// uno con los anchos reales de las diez tipografías de /fonts. Son tres
+// fuentes distintas y cada una salió de ese cruce:
+//
+//   título          Verandah Reverie — los dos renglones dan 7.99 y 8.08
+//   rótulos         Tempting         — los tres dan 4.90, 4.90 y 4.91
+//   datos           Tangerine        — la que más se le acerca
+//
+// El título y los rótulos son inequívocos: ninguna otra fuente hace que
+// los renglones coincidan entre sí. Los datos no cerraron con ninguna
+// (la letra es chica y fina, y la medición se ensucia), así que va la
+// Tangerine, que es la que ya usan los nombres de los padres.
+//
+// Ojo con el ancho de los datos del centro: son más chicos que los de
+// los costados. En el diseño también, porque la dirección tiene cuatro
+// renglones y hay que meterlos en la misma altura.
+//
+// Todo se mide contra el ancho de la columna: 1cqw = 1% de ese ancho.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+/*
+   El título SÍ lleva tildes y ñ: se midió la Verandah Reverie y trae
+   todos los acentuados del castellano. Acá arriba decía lo contrario y
+   era un error —el texto se copió sin acentos de la imagen de
+   referencia y se supuso que la fuente no los tenía—.
+
+   La que de verdad NO trae acentos es la Tempting de los rótulos, pero
+   a "Dia", "Lugar" y "Hora" no les hacen falta. Los datos van en
+   Tangerine, que también los trae: por eso "Señora" lleva la suya.
+*/
+const titulo = ["Acompáñanos este día", "tan especial"];
+
+const dia = { rotulo: "Dia", lineas: ["24", "Octubre"] };
+const lugar = {
+    rotulo: "Lugar",
+    lineas: [
+        "Catedral Basilica",
+        "Nuestra Señora de",
+        "La Paz",
+        "Plaza Murillo",
+    ],
+};
+const hora = { rotulo: "Hora", lineas: ["14:00 hrs."] };
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="fecha" class="seccion">
+    <p class="titulo font-verandah">
+        {titulo[0]}<br />{titulo[1]}
+    </p>
+
+    <div id="tarjeta-fecha" class="tarjeta">
+        <!--
+           La mancha va como imagen y no como fondo CSS: necesita su
+           opacidad propia, y un background-image no la admite sin
+           desteñir también el texto de encima.
+        -->
+        <img
+            src="/imagenes/mancha-barra.webp"
+            alt=""
+            aria-hidden="true"
+            class="mancha"
+        />
+
+        <div class="columna columna-dia">
+            <p class="rotulo font-tempting">{dia.rotulo}</p>
+            <div class="datos">
+                {dia.lineas.map((l) => <p class="dato font-tangerine">{l}</p>)}
+            </div>
+        </div>
+
+        <span class="raya" aria-hidden="true"></span>
+
+        <div class="columna columna-lugar">
+            <p class="rotulo font-tempting">{lugar.rotulo}</p>
+            <div class="datos datos-apretados">
+                {lugar.lineas.map((l) => <p class="dato font-tangerine">{l}</p>)}
+            </div>
+        </div>
+
+        <span class="raya" aria-hidden="true"></span>
+
+        <div class="columna columna-hora">
+            <p class="rotulo font-tempting">{hora.rotulo}</p>
+            <div class="datos datos-hora">
+                {hora.lineas.map((l) => <p class="dato font-tangerine">{l}</p>)}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /*
+       container-type deja medir todo contra el ancho de la columna y no
+       contra la pantalla: así el armado guarda la misma proporción en
+       cualquier celular. Con esto, 1cqw es el 1% del ancho de la columna.
+    */
+    .seccion {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 7% 0 8%;
+    }
+
+    .titulo {
+        margin: 0;
+        color: #075843;
+        text-align: center;
+        font-size: 10.5cqw;
+        /*
+           Menor que 1 a propósito: esta cursiva tiene la caja muy alta y
+           la escritura chica adentro. Con line-height normal los dos
+           renglones quedarían muy separados.
+        */
+        line-height: 0.87;
+    }
+
+    .tarjeta {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        /*
+           La tarjeta no llega a los bordes de la columna: así queda
+           papel blanco a los costados y se ven los filos deshilachados
+           de la acuarela, que es lo que la hace ver pintada.
+
+           La mancha va ancha —casi toda la columna— y el margen que se
+           ve a los costados es el padding: 6% de aire entre el filo de
+           la acuarela y donde empieza el texto. Así queda holgado sin
+           achicar la letra.
+
+           El alto es corto a propósito (11 arriba, 7 abajo): con eso la
+           tarjeta queda más ancha que alta, como en el diseño.
+        */
+        width: 98%;
+        margin: 6cqw auto 0;
+        padding: 11cqw 6% 7cqw;
+    }
+
+    /*
+       La mancha se estira al tamaño de la tarjeta (object-fit fill): la
+       acuarela es una textura orgánica y el estirón no se nota, y así el
+       alto lo manda el texto y no la proporción de la imagen.
+
+       Acá se usa mancha-barra.webp y no la mancha-verde.webp del
+       Versículo. Es la misma acuarela, recortada: en la original el
+       verde lleno va del 12,2% al 83,2% de su ancho —o sea que casi un
+       tercio del archivo es desvanecido, y encima descentrado: 12,2% a
+       la izquierda contra 16,8% a la derecha—. Con eso, la columna de la
+       hora caía siempre sobre la parte desteñida.
+
+       El recorte deja el desvanecido parejo de los dos lados, y ese filo
+       está apagado con un borde ondulado, no con un degradado recto: un
+       degradado derecho deja los costados como dos líneas verticales y
+       la mancha se ve forzada, como una imagen metida en una caja.
+
+       Así la mancha entra entera en la tarjeta, se le ven los filos de
+       acuarela, y el verde lleno igual llega a las tres columnas.
+
+       El max-width none no es un adorno: Tailwind le pone max-width 100%
+       a TODA imagen, y sin desactivarlo cualquier ancho mayor a 100% se
+       recorta —mientras que un left negativo sí se aplica—, así que la
+       mancha no se ensancha: se corre a la izquierda.
+    */
+    .mancha {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 0;
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        object-fit: fill;
+        opacity: 0.5;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /*
+       Los tres anchos están repartidos para que a cada columna le sobre
+       más o menos lo mismo: midiendo el texto contra la columna, el
+       renglón más apretado de cada una ocupa entre el 80% y el 82%. Así
+       ninguna se ve amontonada contra las rayas.
+
+       El diseño original repartía 28.8 / 39.3 / 30.8, pero eso era con
+       la letra chica; con la letra grande el centro quedaba al 89% y se
+       veía apretado.
+    */
+    .columna {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+
+    .columna-dia {
+        flex: 0 0 24.5%;
+    }
+
+    .columna-lugar {
+        flex: 0 0 45.5%;
+    }
+
+    .columna-hora {
+        flex: 0 0 28.9%;
+    }
+
+    /* Las rayas se estiran solas: las puntas las marca el padding */
+    .raya {
+        position: relative;
+        z-index: 1;
+        flex: 0 0 0.55%;
+        align-self: stretch;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    .rotulo {
+        margin: 0;
+        color: #075843;
+        font-size: 7cqw;
+        line-height: 1;
+    }
+
+    .dato {
+        margin: 0;
+        color: #1d8150;
+        font-size: 8.4cqw;
+        line-height: 1.32;
+    }
+
+    /* Cada columna arranca sus datos a distinta altura: es lo que hace
+       que los cuatro renglones del lugar entren parejos con los dos de
+       la fecha y el único de la hora */
+    .datos {
+        margin-top: 4.3cqw;
+    }
+
+    .datos-apretados {
+        margin-top: 2.9cqw;
+    }
+
+    .datos-hora {
+        margin-top: 5.4cqw;
+    }
+
+    /* Los del centro son más chicos: son cuatro renglones en el mismo
+       alto que los dos de al lado */
+    .datos-apretados .dato {
+        font-size: 6.5cqw;
+        line-height: 1.28;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("fecha");
+        const tarjeta = document.getElementById("tarjeta-fecha");
+        if (!seccion || !tarjeta) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const titulo = seccion.querySelector(".titulo");
+        const rayas = Array.from(tarjeta.querySelectorAll(".raya"));
+        const columnas = Array.from(tarjeta.querySelectorAll(".columna"));
+
+        const disparador = {
+            trigger: seccion,
+            start: "top 80%",
+            toggleActions: "play none none reset",
+        };
+
+        gsap.fromTo(
+            titulo,
+            { opacity: 0, y: 16 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power2.out",
+                scrollTrigger: disparador,
+            },
+        );
+
+        // La mancha se abre como si la pintaran
+        gsap.fromTo(
+            tarjeta,
+            { opacity: 0, scale: 0.95 },
+            {
+                opacity: 1,
+                scale: 1,
+                duration: 1.3,
+                delay: 0.3,
+                ease: "power2.out",
+                scrollTrigger: disparador,
+            },
+        );
+
+        // Las rayas se abren de arriba abajo, y detrás entran los datos
+        gsap.fromTo(
+            rayas,
+            { scaleY: 0 },
+            {
+                scaleY: 1,
+                duration: 0.9,
+                delay: 0.75,
+                ease: "power2.out",
+                scrollTrigger: disparador,
+            },
+        );
+
+        gsap.fromTo(
+            columnas,
+            { opacity: 0, y: 12 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                delay: 0.85,
+                stagger: 0.15,
+                ease: "power2.out",
+                scrollTrigger: disparador,
+            },
+        );
+    });
+</script>

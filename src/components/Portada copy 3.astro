@@ -1,0 +1,888 @@
+---
+// src/components/Portada.astro - Portada tipo tarjeta de boda: una tapa
+// verde con el logo dorado al centro y dos cintas asomando por detrás.
+// La tarjeta entera es el botón: al pulsarla las cintas se sueltan, la tapa
+// gira como la portada de una carpeta y detrás aparece el interior de papel.
+// El logo (monograma + filigranas) viene como imagen: /imagenes/logo.webp.
+// La música no se toca acá: la maneja Reproductor.astro.
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const llamada1 = "Tenemos una noticia...";
+// Sin tilde: la Rantera no trae acentos.
+const llamada2 = "Pulsa aqui";
+// Frase de adentro. La Elegant es DEMO: solo a-z / A-Z, sin tildes.
+const fraseInterior = "Nos casamos";
+// ──────────────────────────────────────────────────────────────
+
+// Polvo dorado del fondo. Los valores se calculan acá y no en el script
+// para que el servidor y el navegador dibujen exactamente lo mismo.
+const polvo = Array.from({ length: 14 }, (_, i) => ({
+    izq: (i * 37) % 96,
+    dur: 9 + ((i * 3) % 7),
+    retraso: (i * 1.3) % 9,
+    tam: 2 + (i % 3) * 1.1,
+}));
+---
+
+<!-- CAPA BLANCA DE TRANSICIÓN — tapa el fondo del layout durante el fade -->
+<div
+    id="capa-blanca"
+    style="
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(#ffffff, #ffffff);
+    z-index: 8499;
+    opacity: 1;
+    pointer-events: none;
+"
+>
+</div>
+
+<!--
+   La portada va por debajo del botón flotante de música (z 9000) para que
+   el control siga accesible mientras la portada se desvanece.
+-->
+<section
+    class="fixed inset-0 w-full h-screen flex justify-center z-[8500]"
+    id="portada-section"
+    style="background-image: linear-gradient(#e9e4dd, #e9e4dd);"
+>
+    <!-- Columna móvil: el diseño nunca se estira en tablet / PC -->
+    <div class="marco">
+        <!-- Polvo dorado flotando, bien tenue -->
+        <div class="polvo" aria-hidden="true">
+            {
+                polvo.map((p) => (
+                    <span
+                        style={`left:${p.izq}%; width:${p.tam}px; height:${p.tam}px; animation-duration:${p.dur}s; animation-delay:-${p.retraso}s;`}
+                    />
+                ))
+            }
+        </div>
+
+        <!--
+           La escena lleva la perspectiva: sin ella el giro de la tapa se
+           vería plano. Ojo: ni la escena ni la tarjeta pueden llevar
+           filter ni overflow, aplastan el 3D.
+        -->
+        <div class="escena">
+            <button
+                id="btn-sobre"
+                type="button"
+                aria-label="Abrir la invitación"
+                class="tarjeta-boton"
+            >
+                <div class="tarjeta-tilt" id="tarjeta-tilt">
+                    <div class="tarjeta">
+                        <!-- Sombra en el piso: va aparte para que no
+                             acompañe el giro de la tapa -->
+                        <div class="sombra-piso" id="sombra-piso"></div>
+
+                        <!-- Canto de la tarjeta de atrás, asomando -->
+                        <div class="tarjeta-atras"></div>
+
+                        <!-- Cintas: salen por detrás, hacia la derecha -->
+                        <div class="listones" id="listones" aria-hidden="true">
+                            <svg class="liston liston-alto" viewBox="0 0 170 92">
+                                <path
+                                    class="liston-cuerpo"
+                                    d="M0 34 C26 14 52 54 78 34 C104 14 130 54 160 32 L150 46 L162 58 C132 78 104 40 78 58 C52 76 26 40 0 58 Z"
+                                ></path>
+                                <path
+                                    class="liston-luz"
+                                    d="M0 39 C26 19 52 59 78 39 C104 19 130 59 158 38"
+                                ></path>
+                            </svg>
+                            <svg class="liston liston-bajo" viewBox="0 0 170 92">
+                                <path
+                                    class="liston-cuerpo"
+                                    d="M0 30 C24 52 50 12 74 32 C98 52 126 18 158 34 L147 47 L160 60 C128 76 98 44 74 58 C50 72 24 38 0 54 Z"
+                                ></path>
+                                <path
+                                    class="liston-luz"
+                                    d="M0 35 C24 57 50 17 74 37 C98 57 126 23 156 39"
+                                ></path>
+                            </svg>
+                        </div>
+
+                        <!-- Interior de papel: se descubre al abrir la tapa -->
+                        <div class="interior">
+                            <div class="interior-marco"></div>
+                            <div class="interior-texto" id="interior-texto">
+                                <span class="font-elegant">{fraseInterior}</span>
+                                <i class="rayita"></i>
+                            </div>
+                            <!-- Penumbra del pliegue: se va mientras abre -->
+                            <div class="interior-sombra" id="interior-sombra">
+                            </div>
+                        </div>
+
+                        <!-- La tapa: verde por fuera, papel por dentro -->
+                        <div class="tapa" id="tapa">
+                            <div class="cara cara-frente">
+                                <span class="filo-oro"></span>
+                                <div class="logo-caja" id="logo-caja">
+                                    <img
+                                        src="/imagenes/logo.webp"
+                                        alt=""
+                                        width="760"
+                                        height="569"
+                                        aria-hidden="true"
+                                        class="logo"
+                                    />
+                                    <!-- Destello que recorre el logo: usa
+                                         el propio PNG como máscara -->
+                                    <span class="brillo"></span>
+                                </div>
+                            </div>
+                            <div class="cara cara-dorso">
+                                <span class="filo-oro filo-oro-claro"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </button>
+        </div>
+
+        <!-- Llamada debajo de la tarjeta -->
+        <p id="llamada-portada" class="llamada font-rantera">
+            <span>{llamada1}</span>
+            <span>{llamada2}</span>
+        </p>
+    </div>
+</section>
+
+<style>
+    body.portada-activa {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
+    #capa-blanca {
+        transition: opacity 0.4s ease;
+    }
+
+    /* ── Marco / fondo ──────────────────────────────────────── */
+    .marco {
+        position: relative;
+        width: 100%;
+        max-width: 430px;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        /*
+           El claro va declarado como degradado y no como color: el modo
+           oscuro forzado oscurece colores pero respeta las imágenes.
+        */
+        background-image:
+            radial-gradient(
+                circle at 50% 38%,
+                rgba(255, 255, 255, 0.78) 0%,
+                rgba(246, 239, 229, 0.9) 55%,
+                rgba(232, 222, 208, 0.96) 100%
+            ),
+            url("/imagenes/fondo.webp");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── Polvo dorado ───────────────────────────────────────── */
+    .polvo {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .polvo span {
+        position: absolute;
+        bottom: -6%;
+        border-radius: 50%;
+        background-image: radial-gradient(
+            circle,
+            rgba(214, 176, 94, 0.85) 0%,
+            rgba(214, 176, 94, 0) 70%
+        );
+        animation-name: subir;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        opacity: 0;
+    }
+
+    @keyframes subir {
+        0% {
+            transform: translateY(0) translateX(0);
+            opacity: 0;
+        }
+        12% {
+            opacity: 0.75;
+        }
+        80% {
+            opacity: 0.35;
+        }
+        100% {
+            transform: translateY(-105vh) translateX(18px);
+            opacity: 0;
+        }
+    }
+
+    /* ── Escena 3D ──────────────────────────────────────────── */
+    .escena {
+        position: relative;
+        z-index: 2;
+        perspective: 1500px;
+        perspective-origin: 62% 50%;
+    }
+
+    .tarjeta-boton {
+        display: block;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        /*
+           touch-action: none le saca el gesto al navegador mientras se
+           arrastra la tarjeta: sin esto el teléfono lo toma como scroll.
+        */
+        touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .tarjeta-tilt {
+        transform-style: preserve-3d;
+    }
+
+    .tarjeta {
+        position: relative;
+        width: 76vw;
+        max-width: 296px;
+        aspect-ratio: 300 / 400;
+        transform-style: preserve-3d;
+    }
+
+    /* Sombra apoyada en el piso, suelta de la tapa */
+    .sombra-piso {
+        position: absolute;
+        left: 6%;
+        right: -4%;
+        bottom: -5%;
+        height: 26px;
+        border-radius: 50%;
+        background-image: radial-gradient(
+            ellipse at center,
+            rgba(38, 30, 18, 0.34) 0%,
+            rgba(38, 30, 18, 0) 72%
+        );
+        transform: translateZ(-6px);
+    }
+
+    /* Canto de la tarjeta de atrás */
+    .tarjeta-atras {
+        position: absolute;
+        inset: 0;
+        transform: translate3d(4.5%, -1.6%, -4px);
+        border-radius: 3px;
+        background-image: linear-gradient(160deg, #1d3d34 0%, #14302a 100%);
+        box-shadow: 0 10px 22px rgba(20, 40, 34, 0.3);
+    }
+
+    /* ── Cintas ─────────────────────────────────────────────── */
+    .listones {
+        position: absolute;
+        top: 34%;
+        right: -58%;
+        width: 74%;
+        transform: translateZ(-2px);
+        pointer-events: none;
+    }
+
+    .liston {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        transform-origin: left center;
+        filter: drop-shadow(2px 6px 6px rgba(20, 40, 34, 0.28));
+    }
+
+    .liston-cuerpo {
+        fill: #1c4437;
+    }
+
+    .liston-luz {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.14);
+        stroke-width: 2.4;
+    }
+
+    .liston-alto {
+        --giro: -9deg;
+        --y: 0px;
+        transform: rotate(-9deg);
+        animation: ondear 5.5s ease-in-out infinite;
+    }
+
+    .liston-bajo {
+        --giro: 13deg;
+        --y: 14px;
+        transform: rotate(13deg) translateY(14px);
+        animation: ondear 6.4s ease-in-out infinite;
+        animation-delay: -1.8s;
+    }
+
+    .liston-bajo .liston-cuerpo {
+        fill: #163a2e;
+    }
+
+    @keyframes ondear {
+        0%,
+        100% {
+            transform: rotate(var(--giro)) translateY(var(--y));
+        }
+        50% {
+            transform: rotate(calc(var(--giro) + 2.2deg))
+                translateY(calc(var(--y) + 4px));
+        }
+    }
+
+    /* ── Interior de papel ──────────────────────────────────── */
+    .interior {
+        position: absolute;
+        inset: 0;
+        border-radius: 3px;
+        overflow: hidden;
+        background-image: linear-gradient(
+            160deg,
+            #faf4ea 0%,
+            #f3ebdd 55%,
+            #eadfcc 100%
+        );
+        transform: translateZ(0);
+    }
+
+    .interior-marco {
+        position: absolute;
+        inset: 7%;
+        border: 1px solid rgba(178, 140, 66, 0.45);
+    }
+
+    .interior-texto {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7rem;
+        color: #1f4136;
+        font-size: 2.1rem;
+        line-height: 1;
+        opacity: 0;
+    }
+
+    .interior-texto .rayita {
+        display: block;
+        width: 44%;
+        height: 1px;
+        background-image: linear-gradient(
+            90deg,
+            rgba(178, 140, 66, 0),
+            rgba(178, 140, 66, 0.85),
+            rgba(178, 140, 66, 0)
+        );
+    }
+
+    /*
+       Penumbra del pliegue: con la tapa cerrada el interior está casi a
+       oscuras y se va aclarando a medida que abre.
+    */
+    .interior-sombra {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(
+            100deg,
+            rgba(26, 20, 10, 0.72) 0%,
+            rgba(26, 20, 10, 0.4) 45%,
+            rgba(26, 20, 10, 0.12) 100%
+        );
+    }
+
+    /* ── La tapa ────────────────────────────────────────────── */
+    .tapa {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
+        transform-origin: left center;
+        transform: translateZ(1px);
+        /* container-type deja medir el logo contra el ancho de la tapa y
+           no de la pantalla: entra igual en cualquier celular */
+        container-type: inline-size;
+    }
+
+    .cara {
+        position: absolute;
+        inset: 0;
+        border-radius: 3px;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cara-frente {
+        overflow: hidden;
+        background-image:
+            radial-gradient(
+                ellipse at 30% 22%,
+                rgba(255, 255, 255, 0.09) 0%,
+                rgba(255, 255, 255, 0) 58%
+            ),
+            linear-gradient(155deg, #2f5449 0%, #24443b 52%, #1b352e 100%);
+        box-shadow:
+            0 18px 34px rgba(22, 44, 36, 0.36),
+            inset 0 0 60px rgba(0, 0, 0, 0.18);
+    }
+
+    .cara-dorso {
+        transform: rotateY(180deg);
+        background-image: linear-gradient(
+            160deg,
+            #f7f0e4 0%,
+            #efe5d4 60%,
+            #e4d7c1 100%
+        );
+        box-shadow: inset 0 0 40px rgba(120, 96, 58, 0.18);
+    }
+
+    /* Filete dorado por dentro del canto */
+    .filo-oro {
+        position: absolute;
+        inset: 5.5%;
+        border: 1px solid rgba(203, 164, 92, 0.5);
+        pointer-events: none;
+    }
+
+    .filo-oro::after {
+        content: "";
+        position: absolute;
+        inset: 5px;
+        border: 1px solid rgba(203, 164, 92, 0.26);
+    }
+
+    .filo-oro-claro {
+        border-color: rgba(178, 140, 66, 0.4);
+    }
+
+    /* ── Logo al centro ─────────────────────────────────────── */
+    .logo-caja {
+        position: relative;
+        width: 74cqw;
+        display: block;
+    }
+
+    .logo {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+    }
+
+    /*
+       El destello usa el propio PNG del logo como máscara: la luz solo se
+       ve sobre el dorado, nunca sobre el verde de alrededor.
+    */
+    .brillo {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        mix-blend-mode: screen;
+        -webkit-mask-image: url("/imagenes/logo.webp");
+        mask-image: url("/imagenes/logo.webp");
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        background-image: linear-gradient(
+            100deg,
+            rgba(255, 255, 255, 0) 42%,
+            rgba(255, 249, 226, 0.85) 50%,
+            rgba(255, 255, 255, 0) 58%
+        );
+        background-size: 260% 100%;
+        background-repeat: no-repeat;
+        background-position: 150% 0;
+        animation: pasarLuz 5.5s ease-in-out infinite;
+        animation-delay: 2.4s;
+    }
+
+    @keyframes pasarLuz {
+        0% {
+            background-position: 150% 0;
+        }
+        45%,
+        100% {
+            background-position: -150% 0;
+        }
+    }
+
+    /* ── Llamada de abajo ───────────────────────────────────── */
+    .llamada {
+        position: relative;
+        z-index: 2;
+        margin-top: 2.1rem;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        line-height: 1.45;
+        font-size: clamp(1.05rem, 4.7vw, 1.3rem);
+        color: #274a3e;
+    }
+
+    .llamada span {
+        display: block;
+    }
+
+    /* Quien pidió menos movimiento, recibe menos movimiento */
+    @media (prefers-reduced-motion: reduce) {
+        .polvo span,
+        .brillo,
+        .liston-alto,
+        .liston-bajo {
+            animation: none;
+        }
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+
+    if (typeof window !== "undefined") {
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("portada-activa");
+
+            const boton = document.getElementById("btn-sobre");
+            const tilt = document.getElementById("tarjeta-tilt");
+            const tapa = document.getElementById("tapa");
+            const listones = document.getElementById("listones");
+            const logoCaja = document.getElementById("logo-caja");
+            const interiorTexto = document.getElementById("interior-texto");
+            const interiorSombra = document.getElementById("interior-sombra");
+            const sombraPiso = document.getElementById("sombra-piso");
+            const llamada = document.getElementById("llamada-portada");
+            const seccion = document.getElementById("portada-section");
+            const capaBlanca = document.getElementById("capa-blanca");
+            if (!boton || !tilt || !tapa) return;
+
+            const menosMovimiento = window.matchMedia(
+                "(prefers-reduced-motion: reduce)",
+            ).matches;
+
+            /*
+               Las dos banderas del gesto se declaran acá arriba porque las
+               usan tanto la inclinación como el arrastre y la apertura.
+            */
+            let abriendo = false;
+            let arrastrando = false;
+            let huboArrastre = false;
+            let inicioY = 0;
+            const UMBRAL = 90; // píxeles que hay que subir para que abra
+
+            // ── Estado inicial ──────────────────────────────────────
+            gsap.set(boton, { opacity: 0 });
+            gsap.set(tilt, { y: 46, scale: 0.9, rotateY: 18 });
+            gsap.set(listones, { opacity: 0, x: -30, scaleX: 0.7 });
+            gsap.set(logoCaja, { opacity: 0, scale: 0.86 });
+            if (llamada) gsap.set(llamada, { opacity: 0, y: 12 });
+
+            // ── Entrada ─────────────────────────────────────────────
+            const tl = gsap.timeline({ delay: 0.35 });
+
+            tl.to(boton, { opacity: 1, duration: 0.5 })
+                .to(
+                    tilt,
+                    {
+                        y: 0,
+                        scale: 1,
+                        rotateY: 0,
+                        duration: 1.3,
+                        ease: "power3.out",
+                    },
+                    0,
+                )
+                // Las cintas se despliegan saliendo de atrás de la tarjeta
+                .to(
+                    listones,
+                    {
+                        opacity: 1,
+                        x: 0,
+                        scaleX: 1,
+                        duration: 1.1,
+                        ease: "power2.out",
+                    },
+                    0.55,
+                )
+                .to(
+                    logoCaja,
+                    { opacity: 1, scale: 1, duration: 1.1, ease: "power2.out" },
+                    0.8,
+                );
+
+            if (llamada) {
+                tl.to(
+                    llamada,
+                    { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                    1.45,
+                );
+            }
+
+            // ── Respiración: la tarjeta flota apenas ────────────────
+            if (!menosMovimiento) {
+                tl.add(() => {
+                    gsap.to(tilt, {
+                        y: -7,
+                        duration: 2.6,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut",
+                    });
+                    if (sombraPiso) {
+                        gsap.to(sombraPiso, {
+                            scaleX: 0.92,
+                            opacity: 0.75,
+                            duration: 2.6,
+                            repeat: -1,
+                            yoyo: true,
+                            ease: "sine.inOut",
+                        });
+                    }
+                });
+            }
+
+            /*
+               ── La tarjeta acompaña la mirada ────────────────────────
+               En PC sigue al mouse; en celular, la inclinación del
+               aparato. Son pocos grados: alcanza para que el dorado
+               cambie de brillo y parezca papel de verdad.
+            */
+            const inclinar = (gx: number, gy: number) => {
+                if (abriendo || arrastrando) return;
+                gsap.to(tilt, {
+                    rotateY: gx,
+                    rotateX: gy,
+                    duration: 0.6,
+                    ease: "power2.out",
+                    overwrite: "auto",
+                });
+            };
+
+            if (!menosMovimiento && seccion) {
+                seccion.addEventListener("mousemove", (e) => {
+                    const mx = e.clientX / window.innerWidth - 0.5;
+                    const my = e.clientY / window.innerHeight - 0.5;
+                    inclinar(mx * 14, -my * 8);
+                });
+                seccion.addEventListener("mouseleave", () => inclinar(0, 0));
+
+                window.addEventListener("deviceorientation", (e) => {
+                    if (e.gamma === null || e.beta === null) return;
+                    const gx = Math.max(-10, Math.min(10, e.gamma / 3));
+                    const gy = Math.max(-6, Math.min(6, (e.beta - 45) / 6));
+                    inclinar(gx, -gy);
+                });
+            }
+
+            // ── Suelta el scroll y deja la invitación arrancada en el
+            //    sobre de NombresFlores, su primera sección.
+            const abrirInvitacion = () => {
+                document.body.classList.remove("portada-activa");
+                document.body.style.overflow = "auto";
+
+                // Salto seco, no suave: la portada todavía se está
+                // desvaneciendo encima y el sobre tiene que estar ya en su
+                // lugar cuando termina de irse.
+                const destino = document.getElementById("sobre-novios");
+                if (destino) {
+                    destino.scrollIntoView({ block: "start" });
+                } else {
+                    window.scrollTo({ top: 0 });
+                }
+
+                /*
+                   El aviso para que NombresFlores recién ahora arranque su
+                   entrada. Sin esto su ScrollTrigger se dispararía en la
+                   carga —la sección está arriba de todo, o sea "a la
+                   vista", aunque la portada la esté tapando— y el invitado
+                   se encontraría el sobre ya armado.
+                */
+                (window as any).portadaAbierta = true;
+                window.dispatchEvent(new Event("portada-abierta"));
+            };
+
+            /*
+               ── Abrir la invitación ──────────────────────────────────
+               Se llega acá de dos maneras: tocando la tarjeta o
+               arrastrándola hacia arriba. La bandera evita que las dos lo
+               disparen a la vez.
+            */
+            const abrirTodo = () => {
+                if (abriendo) return;
+                abriendo = true;
+
+                gsap.killTweensOf([tilt, sombraPiso]);
+
+                // Acá NO se toca la música: de eso se encarga Reproductor.
+
+                gsap.timeline()
+                    // La tarjeta se hunde, como si la apretaran
+                    .to(tilt, {
+                        scale: 0.965,
+                        rotateY: 0,
+                        rotateX: 0,
+                        duration: 0.24,
+                        ease: "power2.in",
+                    })
+                    // Las cintas se sueltan y se van por la derecha
+                    .to(
+                        listones,
+                        {
+                            x: 120,
+                            rotate: 14,
+                            opacity: 0,
+                            duration: 0.75,
+                            ease: "power2.in",
+                        },
+                        0,
+                    )
+                    // Y la tapa gira sobre su lomo, como una carpeta
+                    .to(
+                        tapa,
+                        { rotateY: -124, duration: 1.25, ease: "power3.inOut" },
+                        0.28,
+                    )
+                    // El interior se va iluminando mientras se abre
+                    .to(
+                        interiorSombra,
+                        { opacity: 0, duration: 1.1, ease: "power2.out" },
+                        0.34,
+                    )
+                    .to(
+                        interiorTexto,
+                        { opacity: 1, duration: 0.7, ease: "power2.out" },
+                        0.75,
+                    )
+                    .to(
+                        sombraPiso,
+                        { opacity: 0, duration: 0.8, ease: "power2.in" },
+                        0.6,
+                    )
+                    .to(
+                        llamada,
+                        { opacity: 0, y: 10, duration: 0.4, ease: "power2.in" },
+                        0,
+                    )
+                    // Nos acercamos y la portada se va
+                    .to(
+                        tilt,
+                        { scale: 1.14, duration: 1.0, ease: "power2.in" },
+                        1.05,
+                    )
+                    .to(
+                        seccion,
+                        {
+                            opacity: 0,
+                            duration: 0.6,
+                            ease: "power2.in",
+                            onStart: abrirInvitacion,
+                            onComplete: () => {
+                                seccion?.remove();
+                                // Desvanecer la capa blanca suavemente
+                                gsap.to(capaBlanca, {
+                                    opacity: 0,
+                                    duration: 0.4,
+                                    ease: "power2.out",
+                                    onComplete: () => capaBlanca?.remove(),
+                                });
+                            },
+                        },
+                        1.5,
+                    );
+            };
+
+            boton.addEventListener("click", () => {
+                // Si venía de un arrastre, el click no cuenta: ya se
+                // resolvió al soltar.
+                if (huboArrastre) return;
+                abrirTodo();
+            });
+
+            /*
+               ── Deslizar la tarjeta hacia arriba ─────────────────────
+               La tarjeta sigue al dedo y, si se pasa del umbral, se abre
+               sola al soltar. Si no llega, vuelve con un rebote.
+
+               Va con Pointer Events y no con touch/mouse por separado:
+               una sola implementación sirve para el dedo, el mouse y el
+               lápiz.
+            */
+            const soltar = () => {
+                if (!arrastrando) return;
+                arrastrando = false;
+                if (abriendo) return;
+
+                // No llegó al umbral: la tarjeta vuelve a su sitio
+                gsap.to(tilt, { y: 0, duration: 0.5, ease: "back.out(1.6)" });
+                gsap.to(llamada, { opacity: 1, duration: 0.3 });
+            };
+
+            boton.addEventListener("pointerdown", (e) => {
+                if (abriendo) return;
+                arrastrando = true;
+                huboArrastre = false;
+                inicioY = e.clientY;
+                // La respiración escribe transform: hay que callarla antes
+                // de mover la tarjeta a mano.
+                gsap.killTweensOf(tilt);
+                boton.setPointerCapture(e.pointerId);
+            });
+
+            boton.addEventListener("pointermove", (e) => {
+                if (!arrastrando || abriendo) return;
+
+                const dy = e.clientY - inicioY;
+                if (dy > -4) return; // solo cuenta hacia arriba
+                huboArrastre = true;
+
+                /*
+                   La tarjeta se va frenando: al principio acompaña al dedo
+                   y después cada vez menos, así se siente que hay un tope
+                   y no un elástico infinito.
+                */
+                const avance = Math.min(-dy, 260);
+                const suave = -(avance - avance * avance * 0.0012);
+
+                gsap.set(tilt, { y: suave });
+                gsap.set(llamada, {
+                    opacity: Math.max(0, 1 - avance / UMBRAL),
+                });
+
+                if (avance >= UMBRAL) {
+                    boton.releasePointerCapture(e.pointerId);
+                    arrastrando = false;
+                    abrirTodo();
+                }
+            });
+
+            boton.addEventListener("pointerup", soltar);
+            boton.addEventListener("pointercancel", soltar);
+        });
+    }
+</script>

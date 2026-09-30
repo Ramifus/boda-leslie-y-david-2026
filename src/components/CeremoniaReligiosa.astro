@@ -1,0 +1,468 @@
+---
+// src/components/CeremoniaReligiosa.astro
+// "Religioso", la foto de la catedral rasgada arriba y abajo como papel,
+// la dirección del templo y el botón que abre el mapa.
+//
+// ── De dónde salen las medidas ────────────────────────────────
+// Se midió el diseño y se cruzó con los anchos reales de las fuentes:
+//
+//   título      Verandah Reverie a 7.59cqw — el mismo cálculo da 7.83 en
+//               Fecha y en Contador, así que es la letra de los títulos
+//   dirección   Tangerine Regular — los tres renglones dan 6.02, 6.09 y
+//               6.05, o sea la misma letra
+//
+// El rasgado de la foto es el mismo trazo de Foto1.astro, el de arriba y
+// el de abajo, sin tocar: así los dos papeles rotos de la invitación se
+// ven cortados por la misma mano.
+//
+// Todo se mide contra el ancho de la columna: 1cqw = 1% de ese ancho.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Religioso";
+
+const lineas = [
+    "“ Catedral Metropolitana Basílica",
+    "Nuestra Señora de La Paz ”",
+    "Plaza Murillo.",
+];
+
+// La Tangerine trae los acentuados; la única fuente del proyecto que no
+// los tiene es la Tempting, que acá no se usa.
+const textoBoton = "Ver ubicación";
+// Si tenés el enlace corto del lugar (maps.app.goo.gl/...), pegalo acá.
+const mapa =
+    "https://www.google.com/maps/search/?api=1&query=Catedral+Metropolitana+Nuestra+Se%C3%B1ora+de+La+Paz+Plaza+Murillo+La+Paz";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="ceremonia-religiosa" class="seccion">
+    <p class="titulo font-verandah">{titulo}</p>
+
+    <!-- La foto va a sangre: llega a los dos bordes de la columna -->
+    <div id="foto-ceremonia" class="foto-caja">
+        <img
+            src="/imagenes/ceremonia.webp"
+            alt="La Catedral Metropolitana de La Paz, en la Plaza Murillo"
+            width="1000"
+            height="750"
+            class="foto"
+        />
+    </div>
+
+    <div id="direccion-ceremonia" class="direccion">
+        {lineas.map((linea) => <p class="linea font-tangerine">{linea}</p>)}
+    </div>
+
+    <!--
+       El botón es un enlace de verdad, no un texto con un click pegado:
+       así se puede abrir en otra pestaña, copiar la dirección y el
+       lector de pantalla lo anuncia como lo que es.
+    -->
+    <a
+        id="boton-mapa"
+        class="boton font-tangerine"
+        href={mapa}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Ver la ubicación de la iglesia en el mapa"
+    >
+        <!-- El alfiler del mapa: es lo que hace que se lea como botón de
+             un vistazo, sin tener que probarlo -->
+        <svg
+            class="alfiler"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+        >
+            <path
+                d="M12 2c-3.6 0-6.5 2.9-6.5 6.5C5.5 13.6 12 22 12 22s6.5-8.4 6.5-13.5C18.5 4.9 15.6 2 12 2z"
+            ></path>
+            <circle cx="12" cy="8.4" r="2.4" class="alfiler-ojo"></circle>
+        </svg>
+        {textoBoton}
+    </a>
+</section>
+
+<style>
+    /*
+       container-type deja medir todo contra el ancho de la columna y no
+       contra la pantalla: 1cqw es el 1% de ese ancho.
+
+       Sin padding lateral: la foto tiene que llegar a los dos bordes.
+    */
+    .seccion {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 8% 0 9%;
+        text-align: center;
+    }
+
+    .titulo {
+        margin: 0 0 5.1cqw;
+        color: #075843;
+        font-size: 10.5cqw;
+        line-height: 1;
+    }
+
+    /*
+       El rasgado va en la caja y no en la foto: así el zoom de entrada
+       no asoma por los bordes del papel roto.
+
+       La proporción sale del diseño (306 de ancho por 210 de alto). La
+       foto original es más alta, así que el object-fit la recorta: se
+       pierde algo de cielo y de vereda, no la fachada.
+    */
+    .foto-caja {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 306 / 210;
+        overflow: hidden;
+        clip-path: polygon(
+            0.00% 6.80%,
+            1.82% 4.14%,
+            3.64% 4.05%,
+            5.45% 4.20%,
+            7.27% 5.58%,
+            9.09% 5.26%,
+            10.91% 5.37%,
+            12.73% 5.00%,
+            14.55% 4.59%,
+            16.36% 5.27%,
+            18.18% 5.55%,
+            20.00% 5.57%,
+            21.82% 5.49%,
+            23.64% 4.25%,
+            25.45% 5.91%,
+            27.27% 5.08%,
+            29.09% 3.87%,
+            30.91% 2.91%,
+            32.73% 2.67%,
+            34.55% 3.13%,
+            36.36% 3.68%,
+            38.18% 4.86%,
+            40.00% 4.23%,
+            41.82% 5.23%,
+            43.64% 5.56%,
+            45.45% 5.40%,
+            47.27% 4.13%,
+            49.09% 4.70%,
+            50.91% 4.76%,
+            52.73% 5.53%,
+            54.55% 4.86%,
+            56.36% 4.76%,
+            58.18% 4.58%,
+            60.00% 4.04%,
+            61.82% 2.95%,
+            63.64% 2.88%,
+            65.45% 1.91%,
+            67.27% 2.60%,
+            69.09% 3.28%,
+            70.91% 3.42%,
+            72.73% 4.17%,
+            74.55% 5.77%,
+            76.36% 5.06%,
+            78.18% 4.88%,
+            80.00% 3.80%,
+            81.82% 3.78%,
+            83.64% 4.11%,
+            85.45% 3.60%,
+            87.27% 3.05%,
+            89.09% 4.13%,
+            90.91% 5.67%,
+            92.73% 5.14%,
+            94.55% 3.95%,
+            96.36% 5.27%,
+            98.18% 4.63%,
+            100.00% 5.05%,
+            100.00% 96.55%,
+            98.18% 96.97%,
+            96.36% 96.33%,
+            94.55% 97.65%,
+            92.73% 96.46%,
+            90.91% 95.93%,
+            89.09% 97.47%,
+            87.27% 98.55%,
+            85.45% 98.00%,
+            83.64% 97.49%,
+            81.82% 97.82%,
+            80.00% 97.80%,
+            78.18% 96.72%,
+            76.36% 96.54%,
+            74.55% 95.83%,
+            72.73% 97.43%,
+            70.91% 98.18%,
+            69.09% 98.32%,
+            67.27% 99.00%,
+            65.45% 99.69%,
+            63.64% 98.72%,
+            61.82% 98.65%,
+            60.00% 97.56%,
+            58.18% 97.02%,
+            56.36% 96.84%,
+            54.55% 96.74%,
+            52.73% 96.07%,
+            50.91% 96.84%,
+            49.09% 96.90%,
+            47.27% 97.47%,
+            45.45% 96.20%,
+            43.64% 96.04%,
+            41.82% 96.37%,
+            40.00% 97.37%,
+            38.18% 96.74%,
+            36.36% 97.92%,
+            34.55% 98.47%,
+            32.73% 98.93%,
+            30.91% 98.69%,
+            29.09% 97.73%,
+            27.27% 96.52%,
+            25.45% 95.69%,
+            23.64% 97.35%,
+            21.82% 96.11%,
+            20.00% 96.03%,
+            18.18% 96.05%,
+            16.36% 96.33%,
+            14.55% 97.01%,
+            12.73% 96.60%,
+            10.91% 96.23%,
+            9.09% 96.34%,
+            7.27% 96.02%,
+            5.45% 97.40%,
+            3.64% 97.55%,
+            1.82% 97.46%,
+            0.00% 94.80%
+        );
+    }
+
+    .foto {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 45%;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /* ── La dirección ───────────────────────────────────────── */
+    .direccion {
+        margin-top: 7cqw;
+    }
+
+    /* El diseño daba 6.05cqw y 1.16 de interlineado; se agrandó y se
+       abrió a pedido */
+    .linea {
+        margin: 0;
+        color: #2f8a5f;
+        font-size: 6.7cqw;
+        line-height: 1.38;
+    }
+
+    /* ── El botón del mapa ──────────────────────────────────── */
+    /*
+       Botón liso: un solo color, sin degradados y sin imagen de fondo.
+       Antes iba sobre la mancha de acuarela y se leía como un adorno,
+       no como algo que se pueda tocar.
+
+       El verde va escrito como degradado de un solo color y no como
+       background-color a propósito: el modo oscuro forzado de algunos
+       celulares recalcula los colores pero respeta las imágenes, y un
+       degradado cuenta como imagen. Así el botón se ve igual en todos.
+    */
+    .boton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3em;
+        margin-top: 4cqw;
+        padding: 2.8cqw 7cqw;
+        border-radius: 999px;
+        /* Un filete dorado finito: es lo único que lleva de adorno */
+        border: 1px solid rgba(201, 164, 95, 0.6);
+        background-image: linear-gradient(#075843, #075843);
+        color: #f6efe1;
+        font-size: 6.2cqw;
+        line-height: 1;
+        text-decoration: none;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        /* El dedo lo aprieta entero, también en los bordes */
+        touch-action: manipulation;
+        box-shadow: 0 3px 9px rgba(7, 88, 67, 0.3);
+        transition: box-shadow 0.18s ease;
+    }
+
+    .alfiler {
+        width: 0.68em;
+        height: 0.68em;
+        fill: #f6efe1;
+        /* La cursiva se apoya más abajo que el ícono: este empujón los
+           deja a la misma altura */
+        transform: translateY(-0.05em);
+    }
+
+    .alfiler-ojo {
+        fill: #075843;
+    }
+
+    /*
+       Ojo: acá NO va ningún transform, ni en :active ni en :hover. El
+       latido del botón lo maneja GSAP, que escribe el transform en el
+       atributo style, y eso le gana a cualquier regla de esta hoja: el
+       hundido al apretar no se vería. El tamaño se toca solo desde el
+       script; desde el CSS, únicamente la sombra.
+    */
+    .boton:active {
+        box-shadow: 0 1px 4px rgba(7, 88, 67, 0.32);
+    }
+
+    @media (hover: hover) {
+        .boton:hover {
+            box-shadow: 0 5px 14px rgba(7, 88, 67, 0.36);
+        }
+    }
+
+    .boton:focus-visible {
+        outline: 2px solid #075843;
+        outline-offset: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .boton {
+            transition: none;
+        }
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("ceremonia-religiosa");
+        const caja = document.getElementById("foto-ceremonia");
+        const boton = document.getElementById("boton-mapa");
+        if (!seccion || !caja) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const disparador = {
+            trigger: seccion,
+            start: "top 80%",
+            toggleActions: "play none none reset",
+        };
+
+        gsap.fromTo(
+            seccion.querySelector(".titulo"),
+            { opacity: 0, y: 14 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.9,
+                ease: "power2.out",
+                scrollTrigger: disparador,
+            },
+        );
+
+        // La foto entra ampliada y se va acomodando: un respiro, no un
+        // efecto. El rasgado de la caja contiene el zoom.
+        gsap.fromTo(
+            caja,
+            { opacity: 0 },
+            {
+                opacity: 1,
+                duration: 0.9,
+                delay: 0.2,
+                ease: "power2.out",
+                scrollTrigger: disparador,
+            },
+        );
+
+        gsap.fromTo(
+            caja.querySelector(".foto"),
+            { scale: 1.14 },
+            {
+                scale: 1,
+                duration: 2.4,
+                delay: 0.2,
+                ease: "power2.out",
+                scrollTrigger: disparador,
+            },
+        );
+
+        gsap.fromTo(
+            seccion.querySelectorAll(".linea"),
+            { opacity: 0, y: 14 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                delay: 0.6,
+                stagger: 0.16,
+                ease: "power2.out",
+                scrollTrigger: disparador,
+            },
+        );
+
+        if (boton) {
+            gsap.fromTo(
+                boton,
+                { opacity: 0, y: 14 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    delay: 1.1,
+                    ease: "back.out(1.5)",
+                    scrollTrigger: disparador,
+                    /*
+                       Y una vez puesto, late despacio. Es lo que avisa
+                       que se puede tocar: sin esto el invitado lee la
+                       palabra y sigue de largo.
+
+                       Se anima scale y no el filtro de la sombra: animar
+                       la sombra obliga al navegador a repintar el botón
+                       entero en cada cuadro.
+                    */
+                    onComplete: () => {
+                        gsap.to(boton, {
+                            scale: 1.045,
+                            duration: 1.5,
+                            repeat: -1,
+                            yoyo: true,
+                            ease: "sine.inOut",
+                        });
+                    },
+                },
+            );
+
+            /*
+               El hundido al apretar también va por GSAP y no por CSS:
+               el latido deja un transform escrito en el style y una
+               regla :active no puede contra eso.
+            */
+            boton.addEventListener("pointerdown", () => {
+                gsap.killTweensOf(boton);
+                gsap.to(boton, {
+                    scale: 0.95,
+                    duration: 0.12,
+                    ease: "power2.out",
+                });
+            });
+
+            const soltar = () =>
+                gsap.to(boton, {
+                    scale: 1,
+                    duration: 0.25,
+                    ease: "back.out(2)",
+                });
+
+            boton.addEventListener("pointerup", soltar);
+            boton.addEventListener("pointercancel", soltar);
+            boton.addEventListener("pointerleave", soltar);
+        }
+    });
+</script>

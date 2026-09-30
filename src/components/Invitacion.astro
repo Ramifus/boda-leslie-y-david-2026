@@ -1,0 +1,124 @@
+---
+// src/components/Invitacion.astro
+// El cuerpo completo de la invitación, en un solo lugar.
+import Portada from "./Portada.astro";
+import NombresFlores from "./NombresFlores.astro";
+import NombresNovios from "./NombresNovios.astro";
+import Dedicatoria from "./Dedicatoria.astro";
+import Foto1 from "./Foto1.astro";
+import Reproductor from "./Reproductor.astro";
+import Dedicatoria2 from "./Dedicatoria2.astro";
+import Versiculo from "./Versiculo.astro";
+import NombresPadres from "./NombresPadres.astro";
+import NombresPadrinos from "./NombresPadrinos.astro";
+import Dedicatoria3 from "./Dedicatoria3.astro";
+import Fecha from "./Fecha.astro";
+import Mensaje from "./Mensaje.astro";
+import CeremoniaReligiosa from "./CeremoniaReligiosa.astro";
+import RecepcionSocial from "./RecepcionSocial.astro";
+import Cronograma from "./Cronograma.astro";
+import CodigoVestimenta from "./CodigoVestimenta.astro";
+import Pase from "./Pase.astro";
+import SugerenciaRegalo from "./SugerenciaRegalo.astro";
+import Restriccion from "./Restriccion.astro";
+import Puntualidad from "./Puntualidad.astro";
+import Historia from "./Historia.astro";
+import Confirmar from "./Confirmar.astro";
+import BuenosDeseos from "./BuenosDeseos.astro";
+import NuestraHistoria from "./NuestraHistoria.astro";
+import Despedida from "./Despedida.astro";
+import BotonMusica from "./BotonMusica.astro";
+import Contador from "./Contador.astro";
+import Calendario from "./Calendario.astro";
+import Seccion from "./Seccion.astro";
+
+/*
+   Cuántos lugares reserva esta invitación. No se toca acá: lo manda la
+   página. index.astro no le pasa nada y queda en 0, o sea sin pase;
+   pase[cantidad].astro le pasa el número de la URL (/pase1, /pase2...).
+*/
+export interface Props {
+    pases?: number;
+}
+const { pases = 0 } = Astro.props;
+---
+
+<!-- PORTADA (cubre todo hasta que se toca el botón de ingreso) -->
+<Portada /> 
+
+<!-- CONTENIDO DE LA INVITACIÓN -->
+<div id="contenido-principal">
+    <NombresFlores />
+    <Versiculo />
+    <NombresPadres />
+    <NombresPadrinos />
+    <Contador />
+    <Calendario />
+    <Seccion />
+     <RecepcionSocial />
+      <Cronograma /> 
+     <CodigoVestimenta />
+     <Restriccion /> 
+     <SugerenciaRegalo />
+     <Foto1 />
+     <Despedida />
+    
+     <!-- -->
+       <!-- <Fecha /> -->
+         
+           <!-- <CeremoniaReligiosa /> -->
+          
+             <!-- -->
+              
+    <!-- <NombresNovios /> -->
+    <!--  -->
+    <!-- <Reproductor /> -->
+    
+   
+
+
+  <!-- -->
+
+    
+
+      
+     
+     <!--  -->
+    <!-- -->
+    <!-- <Historia /> -->
+
+
+    <!--
+       El pase sale de la página: /pase2 da "Pase para dos personas".
+       En el index no llega número, así que no se dibuja el pase.
+    -->
+    <!-- <Confirmar pases={pases} /> -->
+
+
+    <!-- <Dedicatoria /> -->
+    <!-- <Dedicatoria2 /> -->
+    
+    <!-- <Mensaje /> -->
+    
+
+    <!-- <Dedicatoria3 /> -->
+
+    
+    <!-- <Puntualidad /> -->
+    <!-- <Pase /> -->
+   
+  
+<!--   
+    <BuenosDeseos /> -->
+    <!-- <NuestraHistoria /> -->
+
+    
+</div>
+
+<!--
+   El control flotante de la esquina: la nota que pausa y reanuda la
+   melodía. Es el único control de música mientras la sección Reproductor
+   esté apagada; si algún día se vuelve a encender, los dos manejan el
+   mismo audio (window.audioGlobal) y no se pisan.
+-->
+<BotonMusica />

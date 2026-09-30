@@ -1,0 +1,142 @@
+---
+// src/components/Foto1.astro
+// Galería de cuatro fotos en cuadrícula de 2x2, separadas por una línea
+// fina de papel, con el sello de lacre en el cruce del medio.
+//
+// Por ahora las cuatro usan foto1.png: cuando lleguen las fotos de los
+// novios, se cambian en la lista de abajo, una por casilla.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const fotos = [
+    { src: "/imagenes/foto1.png", alt: "Los novios abrazados" },
+    { src: "/imagenes/foto1.png", alt: "Los novios dándose un beso" },
+    { src: "/imagenes/foto1.png", alt: "Los novios caminando juntos" },
+    { src: "/imagenes/foto1.png", alt: "Los novios sonriendo" },
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="galeria-fotos" class="seccion">
+    <div class="grilla">
+        {
+            fotos.map((f) => (
+                <div class="casilla">
+                    <img src={f.src} alt={f.alt} loading="lazy" class="foto" />
+                </div>
+            ))
+        }
+
+        <!-- El sello en el cruce de las cuatro fotos -->
+        <img
+            src="/imagenes/boton.png"
+            alt=""
+            width="192"
+            height="177"
+            aria-hidden="true"
+            class="sello"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        /* Las medidas se toman contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 6cqw 4cqw 8cqw;
+    }
+
+    .grilla {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.6cqw;
+    }
+
+    .casilla {
+        overflow: hidden;
+        /* Vertical, como en el diseño */
+        aspect-ratio: 4 / 5;
+        box-shadow: 0 4px 12px rgba(40, 30, 20, 0.15);
+    }
+
+    .foto {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 40%;
+    }
+
+    /* Centrado sin transform: la animación de entrada usa scale */
+    .sello {
+        position: absolute;
+        z-index: 2;
+        top: calc(50% - 9cqw);
+        left: calc(50% - 9.5cqw);
+        width: 19cqw;
+        height: auto;
+        pointer-events: none;
+        filter: drop-shadow(0 4px 6px rgba(40, 30, 10, 0.45));
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("galeria-fotos");
+        if (!seccion) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const casillas = seccion.querySelectorAll(".casilla");
+        const fotos = seccion.querySelectorAll(".foto");
+        const sello = seccion.querySelector(".sello");
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 78%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        // Las cuatro fotos aparecen una tras otra, con un zoom suave
+        tl.fromTo(
+            casillas,
+            { opacity: 0, y: 20 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.9,
+                stagger: 0.15,
+                ease: "power2.out",
+            },
+        )
+            .fromTo(
+                fotos,
+                { scale: 1.12 },
+                { scale: 1, duration: 2, stagger: 0.15, ease: "power2.out" },
+                0,
+            )
+            // Y al final el sello cae en el cruce
+            .fromTo(
+                sello,
+                { opacity: 0, scale: 1.7, rotate: -12 },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    rotate: 0,
+                    duration: 0.7,
+                    ease: "back.out(2)",
+                },
+                0.8,
+            );
+    });
+</script>

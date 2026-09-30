@@ -1,0 +1,260 @@
+---
+// src/components/NombresNovios.astro
+// La tarjeta blanca apoyada sobre el sobre abierto: dentro lleva la
+// guirnalda de flores con los nombres en el medio y, debajo, el
+// "¡Nos casamos!" con la fecha.
+//
+// Son dos capas nada más: sobre1.png atrás (marca la altura) y la tarjeta
+// ENTERA por delante, tapándole el centro. No va metida adentro del sobre,
+// va apoyada encima, como en el diseño: por eso se le ve el borde de abajo
+// recto sobre el marrón.
+//
+// Medidas sacadas del diseño, en % del ancho del sobre (W):
+//   tarjeta   76.9% W de ancho, y de alto 1.065 W
+//   asoma     0.125 W por arriba del sobre  (= 11.9% de su alto)
+//   su base   queda 0.115 W por encima de la base del sobre (= 10.9%)
+// Y adentro de la tarjeta, en % de SU ancho:
+//   guirnalda 75%, arrancando a 16.25% del borde de arriba
+//   nombres   13.5%   ·   anuncio 7.75%   ·   fecha 6.5%
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// Sin tildes: ni la Elegant ni la Rantera traen acentos.
+const novio = "Sebastian";
+const novia = "Adriana";
+const anuncio = "¡Nos casamos!";
+const fecha = "19. 09. 2026";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section
+    id="nombres-novios"
+    class="relative w-full flex items-center justify-center px-4 py-16 sm:py-20"
+>
+    <div id="marco-novios" class="marco-novios">
+        <!-- CAPA 1 · sobre abierto: es la imagen que marca la altura -->
+        <img
+            id="novios-sobre-atras"
+            src="/imagenes/sobre1.png"
+            alt=""
+            aria-hidden="true"
+            class="sobre-base"
+        />
+
+        <!-- CAPA 2 · la tarjeta, apoyada por delante del sobre -->
+        <div id="novios-tarjeta" class="tarjeta">
+            <!--
+               La guirnalda y los nombres comparten caja: la corona va como
+               imagen y los nombres se centran encima con position absolute.
+            -->
+            <div class="guirnalda-caja">
+                <img
+                    src="/imagenes/guirnalda.png"
+                    alt=""
+                    aria-hidden="true"
+                    class="guirnalda"
+                />
+
+                <div id="novios-nombres" class="nombres">
+                    <p class="nombre font-elegant">{novio}</p>
+                    <p class="amper font-elegant">&amp;</p>
+                    <p class="nombre font-elegant">{novia}</p>
+                </div>
+            </div>
+
+            <p id="novios-anuncio" class="anuncio font-rantera">{anuncio}</p>
+            <p id="novios-fecha" class="fecha font-rantera">{fecha}</p>
+        </div>
+    </div>
+</section>
+
+<style>
+    /*
+       container-type deja usar cqw: todas las capas se miden contra el
+       ancho del sobre y no del viewport, así el armado no se descuadra en
+       ninguna pantalla.
+    */
+    .marco-novios {
+        position: relative;
+        width: 100%;
+        max-width: 24rem;
+        container-type: inline-size;
+    }
+
+    .sobre-base {
+        display: block;
+        width: 100%;
+        height: auto;
+        position: relative;
+        z-index: 1;
+        user-select: none;
+    }
+
+    /*
+       La tarjeta va POR DELANTE del sobre: el top negativo la hace asomar
+       por arriba y el bottom la corta antes de la base, así queda el filo
+       marrón del sobre asomando abajo, como en el diseño.
+       Lleva su propio container-type para que el texto de adentro se mida
+       contra el ancho de la tarjeta y no contra el del sobre.
+    */
+    .tarjeta {
+        position: absolute;
+        left: 11.5%;
+        width: 76.9%;
+        top: -11.9%;
+        bottom: 10.9%;
+        z-index: 2;
+        background: #ffffff;
+        border-radius: 2px;
+        box-shadow: 0 10px 22px rgba(90, 50, 20, 0.18);
+        container-type: inline-size;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    /* ── Guirnalda con los nombres adentro ─────────────────── */
+    .guirnalda-caja {
+        position: relative;
+        width: 75%;
+        margin-top: 16.25%;
+    }
+
+    .guirnalda {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+    }
+
+    .nombres {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        /* El texto no tapa el click de nada, pero tampoco molesta al copiar */
+        pointer-events: none;
+    }
+
+    .nombre {
+        color: #3d300d;
+        font-size: 13.5cqw;
+        line-height: 1.05;
+    }
+
+    /* El & va más chico y centrado con los nombres */
+    .amper {
+        color: #3d300d;
+        font-size: 8.5cqw;
+        line-height: 1;
+        /* Casi sin aire: los tres renglones van bien juntos */
+        margin: -0.1em 0;
+    }
+
+    /* ── Anuncio y fecha ───────────────────────────────────── */
+    .anuncio,
+    .fecha {
+        color: #3d300d;
+        text-align: center;
+        letter-spacing: 0.06em;
+        line-height: 1.2;
+        text-transform: uppercase;
+    }
+
+    .anuncio {
+        margin-top: 5.5%;
+        font-size: 7.75cqw;
+    }
+
+    .fecha {
+        margin-top: 1.2%;
+        font-size: 6.5cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const marco = document.getElementById("marco-novios");
+        if (!marco) return;
+
+        // Sin animación si el visitante pidió menos movimiento: la tarjeta
+        // ya está armada y visible en el HTML.
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const tarjeta = document.getElementById("novios-tarjeta");
+        const guirnalda = marco.querySelector(".guirnalda");
+        const nombres = Array.from(
+            marco.querySelectorAll("#novios-nombres > *"),
+        );
+        const pie = [
+            document.getElementById("novios-anuncio"),
+            document.getElementById("novios-fecha"),
+        ].filter(Boolean);
+
+        gsap.set(tarjeta, { yPercent: 22, opacity: 0 });
+        gsap.set(guirnalda, { opacity: 0, scale: 0.88 });
+        gsap.set(nombres, { opacity: 0, y: 14 });
+        gsap.set(pie, { opacity: 0, y: 12 });
+
+        const linea = gsap.timeline({ paused: true });
+
+        linea
+            // 1 · el sobre se asienta
+            .fromTo(
+                "#novios-sobre-atras",
+                { opacity: 0, scale: 0.95, y: 16 },
+                { opacity: 1, scale: 1, y: 0, duration: 0.9, ease: "power2.out" },
+            )
+            // 2 · la tarjeta se apoya encima
+            .to(
+                tarjeta,
+                { yPercent: 0, opacity: 1, duration: 1.4, ease: "power3.out" },
+                "-=0.4",
+            )
+            // 3 · la guirnalda se abre
+            .to(
+                guirnalda,
+                { opacity: 1, scale: 1, duration: 1.1, ease: "power2.out" },
+                "-=0.8",
+            )
+            // 4 · los nombres
+            .to(
+                nombres,
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.18,
+                    ease: "power2.out",
+                },
+                "-=0.5",
+            )
+            // 5 · el anuncio y la fecha
+            .to(
+                pie,
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.7,
+                    stagger: 0.15,
+                    ease: "power2.out",
+                },
+                "-=0.3",
+            );
+
+        ScrollTrigger.create({
+            trigger: marco,
+            start: "top 78%",
+            onEnter: () => linea.restart(),
+            onLeaveBack: () => linea.pause(0),
+        });
+    });
+</script>

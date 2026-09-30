@@ -1,0 +1,387 @@
+---
+// src/components/Cronograma.astro
+// "Cronograma" y, debajo, la línea de tiempo: un eje vertical con un
+// punto por momento, una rama que sale hacia un lado y otro, el ícono al
+// final de la rama y el nombre abajo. La hora va pegada al eje, del lado
+// de la rama. Todo sobre una aguada verde muy tenue.
+//
+// ── Cómo está armado ─────────────────────────────────────────
+// Cada momento mide un alto fijo y chico (10.8cqw), y su bloque —ícono y
+// nombre— va posicionado, o sea que NO empuja el alto de la fila. Por eso
+// los momentos quedan encabalgados como en el diseño: el ícono de uno
+// sube por encima de la rama del anterior. Como se alternan izquierda y
+// derecha, nunca se pisan.
+//
+// El borde de arriba de cada momento ES la rama. Todo lo demás se mide
+// desde ahí: el ícono cuelga hacia arriba (top negativo) y el nombre y la
+// hora caen hacia abajo.
+//
+// ── De dónde salen las medidas ────────────────────────────────
+// Se midió el diseño y se cruzó con los anchos reales de las fuentes:
+//
+//   título    Verandah Reverie a 12.55cqw. Va bastante más grande que en
+//             las otras secciones, y no es un error: en el diseño
+//             "Cronograma" ocupa el 52% del ancho con solo diez letras
+//   nombres   Tangerine Regular a 6.89cqw
+//
+// Todo se mide contra el ancho de la columna: 1cqw = 1% de ese ancho.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// Sin tilde en el título: la Verandah no trae acentos. Los nombres sí
+// los llevan, porque van en Tangerine, que sí los trae.
+const titulo = "Cronograma";
+
+/*
+   El orden manda: el primero va a la derecha del eje, el segundo a la
+   izquierda, y así alternando. No hace falta indicar el lado.
+
+   Los íconos salen de /imagenes y cada archivo lleva el nombre de su
+   momento. "Hayna Wila" y "Fandango" comparten hayna.png, que es el
+   confeti: en el diseño los dos usan el mismo dibujo.
+
+   El último no lleva hora, igual que en el diseño.
+*/
+const momentos = [
+    { nombre: "Religiosa", hora: "2:00 P.M.", icono: "religiosa.png" },
+    { nombre: "Salón", hora: "4:30 P.M.", icono: "salon.png" },
+    { nombre: "Civil", hora: "5:00 P.M.", icono: "civil.png" },
+    { nombre: "Brindis", hora: "5:30 P.M.", icono: "brindis.png" },
+    { nombre: "Fotos", hora: "5:30 P.M.", icono: "fotos.png" },
+    { nombre: "Mulata", hora: "6:30 P.M.", icono: "mulata.png" },
+    { nombre: "Cena", hora: "7:30 P.M.", icono: "cena.png" },
+    { nombre: "Hayna Wila", hora: "8:30 P.M.", icono: "hayna.png" },
+    { nombre: "Torta", hora: "9:30 P.M.", icono: "torta.png" },
+    { nombre: "Bouquete y liga", hora: "9:30 P.M.", icono: "bouquete.png" },
+    { nombre: "Fandango", hora: "10:30 P.M.", icono: "hayna.png" },
+    { nombre: "Turromanticos", hora: "00:30 A.M.", icono: "turromanticos.png" },
+    { nombre: "Despedida Novios", hora: "", icono: "despedida.png" },
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="cronograma" class="seccion">
+    <p class="titulo font-verandah">{titulo}</p>
+
+    <div id="linea-tiempo" class="linea">
+        <!-- La aguada de fondo, bien tenue, detrás de todo -->
+        <img
+            src="/imagenes/mancha-verde.webp"
+            alt=""
+            aria-hidden="true"
+            class="fondo"
+        />
+
+        <!-- El eje vertical -->
+        <span class="eje" aria-hidden="true"></span>
+
+        {
+            momentos.map((momento, i) => (
+                <div class={`momento ${i % 2 === 0 ? "der" : "izq"}`}>
+                    <span class="rama" aria-hidden="true" />
+                    <span class="punto" aria-hidden="true" />
+
+                    <div class="bloque">
+                        <img
+                            src={`/imagenes/${momento.icono}`}
+                            alt=""
+                            aria-hidden="true"
+                            class="icono"
+                        />
+                        <p class="nombre font-tangerine">{momento.nombre}</p>
+                    </div>
+
+                    {momento.hora && <span class="hora">{momento.hora}</span>}
+                </div>
+            ))
+        }
+    </div>
+</section>
+
+<style>
+    /*
+       container-type deja medir todo contra el ancho de la columna y no
+       contra la pantalla: 1cqw es el 1% de ese ancho.
+    */
+    .seccion {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 7% 0 9%;
+        text-align: center;
+    }
+
+    .titulo {
+        margin: 0;
+        color: #075843;
+        font-size: 12.55cqw;
+        line-height: 1;
+    }
+
+    /*
+       El padding de arriba es para el ícono del primer momento, que
+       cuelga por encima de su rama; el de abajo, para el nombre del
+       último, que cae por debajo.
+    */
+    .linea {
+        position: relative;
+        width: 100%;
+        padding: 16cqw 0 12cqw;
+    }
+
+    /*
+       La aguada va estirada a la caja (object-fit fill). Es un fondo muy
+       tenue: el estirón no se nota porque a esta opacidad se lee como una
+       mancha de acuarela y no como una textura.
+
+       El max-width none no es un adorno: Tailwind le pone max-width 100%
+       a TODA imagen.
+    */
+    .fondo {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 6.85%;
+        z-index: 0;
+        width: 86.3%;
+        max-width: none;
+        height: 100%;
+        object-fit: fill;
+        opacity: 0.45;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /*
+       El centrado va con margen y NO con translateX(-50%): al eje se le
+       anima la escala con GSAP, que reescribe el transform entero, y el
+       translate se perdería —el eje quedaría corrido medio grosor—.
+       Lo mismo vale para el punto, más abajo.
+    */
+    .eje {
+        position: absolute;
+        top: 12cqw;
+        bottom: 8cqw;
+        left: 50%;
+        z-index: 1;
+        width: 2px;
+        margin-left: -1px;
+        background-image: linear-gradient(#126f38, #126f38);
+    }
+
+    /*
+       El alto de la fila es la distancia entre un momento y el siguiente.
+       El bloque del ícono NO cuenta para este alto: va posicionado.
+    */
+    .momento {
+        position: relative;
+        z-index: 2;
+        height: 10.8cqw;
+    }
+
+    /* El borde de arriba de la fila es la rama */
+    .rama {
+        position: absolute;
+        top: 0;
+        width: 17%;
+        height: 2px;
+        background-image: linear-gradient(#126f38, #126f38);
+    }
+
+    .der .rama {
+        left: 50%;
+    }
+
+    .izq .rama {
+        right: 50%;
+    }
+
+    /*
+       Los dos márgenes negativos son la mitad del punto. El de arriba va
+       en % a propósito: un margen vertical en porcentaje se calcula
+       contra el ANCHO del padre, que es justo lo que mide el punto por
+       ser cuadrado.
+    */
+    .punto {
+        position: absolute;
+        top: 1px;
+        left: 50%;
+        width: 2.4%;
+        aspect-ratio: 1;
+        margin-top: -1.2%;
+        margin-left: -1.2%;
+        border-radius: 50%;
+        background-image: linear-gradient(#126f38, #126f38);
+    }
+
+    /*
+       El ícono cuelga por encima de la rama: su borde de abajo apoya
+       justo en ella. El 67% es dónde termina la rama (50 del eje + 17).
+    */
+    .bloque {
+        position: absolute;
+        top: -12.9cqw;
+        width: 33%;
+    }
+
+    .der .bloque {
+        left: 67%;
+    }
+
+    .izq .bloque {
+        right: 67%;
+    }
+
+    .icono {
+        display: block;
+        width: 12.9cqw;
+        height: 12.9cqw;
+        margin: 0 auto;
+        object-fit: contain;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .nombre {
+        margin: 0.6cqw 0 0;
+        color: #3f8a63;
+        font-size: 6.89cqw;
+        line-height: 1.05;
+        /* Los nombres largos se salen del bloque hacia afuera, hacia el
+           borde de la columna, como en el diseño */
+        white-space: nowrap;
+    }
+
+    /* La hora va debajo de la rama y pegada al eje, del lado de la rama */
+    .hora {
+        position: absolute;
+        top: 1.8cqw;
+        color: #6f7d70;
+        font-size: 3.5cqw;
+        line-height: 1;
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+    }
+
+    .der .hora {
+        left: 53%;
+    }
+
+    .izq .hora {
+        right: 53%;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("cronograma");
+        const linea = document.getElementById("linea-tiempo");
+        if (!seccion || !linea) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        gsap.fromTo(
+            seccion.querySelector(".titulo"),
+            { opacity: 0, y: 14 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.9,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: seccion,
+                    start: "top 85%",
+                    toggleActions: "play none none reset",
+                },
+            },
+        );
+
+        /*
+           El eje se dibuja de arriba abajo, como si lo trazaran. El
+           transform-origin va arriba para que crezca hacia abajo y no
+           desde el medio.
+        */
+        gsap.fromTo(
+            linea.querySelector(".eje"),
+            { scaleY: 0 },
+            {
+                scaleY: 1,
+                transformOrigin: "50% 0%",
+                duration: 1.6,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: linea,
+                    start: "top 80%",
+                    toggleActions: "play none none reset",
+                },
+            },
+        );
+
+        /*
+           Y cada momento entra cuando le toca, no todos juntos: son trece
+           y de una sola vez no se aprecia ninguno. Cada uno mira su
+           propia posición en la pantalla.
+
+           Se anima el bloque y la hora por separado del punto y la rama:
+           así la rama se estira desde el eje mientras el ícono aparece.
+        */
+        const momentos = Array.from(linea.querySelectorAll(".momento"));
+
+        momentos.forEach((momento) => {
+            const disparador = {
+                trigger: momento,
+                start: "top 88%",
+                toggleActions: "play none none reset",
+            };
+
+            const haciaLaIzquierda = momento.classList.contains("izq");
+
+            gsap.fromTo(
+                momento.querySelector(".rama"),
+                { scaleX: 0 },
+                {
+                    scaleX: 1,
+                    transformOrigin: haciaLaIzquierda ? "100% 50%" : "0% 50%",
+                    duration: 0.5,
+                    ease: "power2.out",
+                    scrollTrigger: disparador,
+                },
+            );
+
+            gsap.fromTo(
+                momento.querySelector(".punto"),
+                { scale: 0 },
+                {
+                    scale: 1,
+                    duration: 0.4,
+                    ease: "back.out(2)",
+                    scrollTrigger: disparador,
+                },
+            );
+
+            const entran = [
+                momento.querySelector(".bloque"),
+                momento.querySelector(".hora"),
+            ].filter(Boolean);
+
+            gsap.fromTo(
+                entran,
+                { opacity: 0, x: haciaLaIzquierda ? 14 : -14 },
+                {
+                    opacity: 1,
+                    x: 0,
+                    duration: 0.6,
+                    delay: 0.2,
+                    stagger: 0.08,
+                    ease: "power2.out",
+                    scrollTrigger: disparador,
+                },
+            );
+        });
+    });
+</script>

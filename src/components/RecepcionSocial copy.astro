@@ -1,0 +1,398 @@
+---
+// src/components/RecepcionSocial.astro
+// Collage de ceremonia y recepción: el óvalo verde con "Nuestro Sí,
+// acepto", la tarjeta bordó de la recepción montada a su derecha, y abajo
+// la foto tipo polaroid con el sello de lacre. Las flores pisan los
+// bordes y el monograma cierra abajo a la derecha.
+//
+// Todas las piezas van ubicadas en cqw (1cqw = 1% del ancho de la
+// sección), así el collage se ve igual en cualquier celular.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const ceremonia = {
+    titulo: ["Nuestro", "“Sí, acepto”"],
+    lugar: "Terrazas Belvedere",
+    hora: "Hora: 8:30 P.M.",
+    mapa: "https://www.google.com/maps/search/?api=1&query=Terrazas+Belvedere",
+};
+const recepcion = {
+    titulo: "Recepción",
+    lugar: "Quinta Venecia",
+    hora: "Hora: 9:00 P.M.",
+    mapa: "https://www.google.com/maps/search/?api=1&query=Quinta+Venecia",
+};
+const textoBoton = "Ver mapa";
+const foto = "/imagenes/foto1.png";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="recepcion-social" class="seccion">
+    <div class="collage">
+        <!-- Óvalo verde: la ceremonia -->
+        <div class="ovalo pieza">
+            <p class="titulo font-great-vibes">
+                <span>{ceremonia.titulo[0]}</span>
+                <span>{ceremonia.titulo[1]}</span>
+            </p>
+            <img
+                src="/imagenes/ceremonia.png"
+                alt=""
+                width="733"
+                height="630"
+                aria-hidden="true"
+                class="dibujo dibujo-ceremonia"
+            />
+            <p class="dato">
+                <span>{ceremonia.lugar}</span>
+                <span>{ceremonia.hora}</span>
+            </p>
+            <a
+                href={ceremonia.mapa}
+                target="_blank"
+                rel="noopener"
+                class="boton boton-verde">{textoBoton}</a
+            >
+        </div>
+
+        <!-- Tarjeta bordó: la recepción -->
+        <div class="tarjeta pieza">
+            <p class="titulo font-great-vibes">{recepcion.titulo}</p>
+            <img
+                src="/imagenes/recepcion.png"
+                alt=""
+                width="588"
+                height="681"
+                aria-hidden="true"
+                class="dibujo dibujo-recepcion"
+            />
+            <p class="dato">
+                <span>{recepcion.lugar}</span>
+                <span>{recepcion.hora}</span>
+            </p>
+            <a
+                href={recepcion.mapa}
+                target="_blank"
+                rel="noopener"
+                class="boton boton-bordo">{textoBoton}</a
+            >
+        </div>
+
+        <!-- Polaroid con la foto -->
+        <div class="polaroid pieza">
+            <img src={foto} alt="Los novios" class="polaroid-foto" />
+        </div>
+
+        <!-- Adornos -->
+        <img
+            src="/imagenes/boton.png"
+            alt=""
+            width="192"
+            height="177"
+            aria-hidden="true"
+            class="adorno sello"
+        />
+        <img
+            src="/imagenes/flor3.png"
+            alt=""
+            width="840"
+            height="1022"
+            aria-hidden="true"
+            class="adorno flor-anturio"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="adorno flor-medio"
+        />
+        <img
+            src="/imagenes/florblanco.png"
+            alt=""
+            width="577"
+            height="1446"
+            aria-hidden="true"
+            class="adorno flor-blanca"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="adorno flor-esquina"
+        />
+        <img
+            src="/imagenes/logo.png"
+            alt=""
+            width="749"
+            height="540"
+            aria-hidden="true"
+            class="adorno logo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 8% 0 10%;
+    }
+
+    /* El collage entero se mide contra su propio ancho */
+    .collage {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        height: 130cqw;
+    }
+
+    .pieza,
+    .adorno {
+        position: absolute;
+    }
+
+    .adorno {
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* ── Óvalo verde (ceremonia) ────────────────────────────── */
+    .ovalo {
+        z-index: 1;
+        left: 6.5cqw;
+        top: 1cqw;
+        width: 48cqw;
+        height: 70cqw;
+        border-radius: 50%;
+        padding: 9cqw 5cqw 0;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 25%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #4d5c3a 0%, #46553a 100%);
+        box-shadow: 0 10px 24px rgba(40, 50, 28, 0.25);
+    }
+
+    /* ── Tarjeta bordó (recepción) ──────────────────────────── */
+    .tarjeta {
+        z-index: 2;
+        left: 50cqw;
+        top: 39cqw;
+        width: 43cqw;
+        height: 66cqw;
+        padding: 8cqw 3cqw 0;
+        background-image:
+            radial-gradient(
+                ellipse at 50% 25%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #7a2335 0%, #6f1f30 100%);
+        box-shadow: 0 10px 24px rgba(70, 20, 30, 0.25);
+    }
+
+    .ovalo,
+    .tarjeta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        color: #f7f2e6;
+    }
+
+    .titulo {
+        margin: 0;
+        font-size: 8.4cqw;
+        line-height: 1.1;
+    }
+
+    .titulo span {
+        display: block;
+    }
+
+    .dibujo {
+        display: block;
+        height: auto;
+        margin: 2cqw 0 2.4cqw;
+    }
+
+    .dibujo-ceremonia {
+        width: 24cqw;
+    }
+
+    .dibujo-recepcion {
+        width: 17cqw;
+        margin-top: 3cqw;
+    }
+
+    .dato {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 3.7cqw;
+        line-height: 1.3;
+        letter-spacing: 0.02em;
+    }
+
+    .dato span {
+        display: block;
+    }
+
+    .boton {
+        display: inline-block;
+        margin-top: 3cqw;
+        padding: 1.2cqw 4.6cqw;
+        border-radius: 999px;
+        font-family: "Cinzel", serif;
+        font-size: 3.3cqw;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+        background-image: linear-gradient(#f6f1e8, #f6f1e8);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    }
+
+    .boton-verde {
+        color: #46553a;
+    }
+
+    .boton-bordo {
+        color: #7a2335;
+    }
+
+    /* ── Polaroid ───────────────────────────────────────────── */
+    .polaroid {
+        z-index: 3;
+        left: 6cqw;
+        top: 69cqw;
+        width: 48cqw;
+        height: 56cqw;
+        padding: 2.6cqw 2.6cqw 13cqw;
+        background-image: linear-gradient(#fbf9f5, #fbf9f5);
+        box-shadow: 0 8px 20px rgba(40, 30, 20, 0.22);
+    }
+
+    .polaroid-foto {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 45%;
+    }
+
+    /* ── Adornos ────────────────────────────────────────────── */
+    .sello {
+        z-index: 5;
+        left: 23.5cqw;
+        top: 62.5cqw;
+        width: 15cqw;
+        filter: drop-shadow(0 3px 4px rgba(60, 40, 10, 0.35));
+    }
+
+    .flor-anturio {
+        z-index: 1;
+        left: 67cqw;
+        top: 7cqw;
+        width: 25cqw;
+    }
+
+    .flor-medio {
+        z-index: 4;
+        left: 47cqw;
+        top: 20cqw;
+        width: 15cqw;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    .flor-blanca {
+        z-index: 4;
+        left: 3cqw;
+        top: 66cqw;
+        width: 12cqw;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.15));
+    }
+
+    .flor-esquina {
+        z-index: 4;
+        left: 84cqw;
+        top: 96cqw;
+        width: 11cqw;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    .logo {
+        z-index: 1;
+        left: 62cqw;
+        top: 111cqw;
+        width: 19cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("recepcion-social");
+        if (!seccion) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const q = (s: string) => seccion.querySelector(s);
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 78%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl.fromTo(
+            q(".ovalo"),
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+        )
+            .fromTo(
+                q(".tarjeta"),
+                { opacity: 0, x: 24 },
+                { opacity: 1, x: 0, duration: 1, ease: "power2.out" },
+                0.3,
+            )
+            .fromTo(
+                q(".polaroid"),
+                { opacity: 0, y: 30, rotate: -4 },
+                { opacity: 1, y: 0, rotate: 0, duration: 1.1, ease: "power3.out" },
+                0.55,
+            )
+            // El sello cae sobre la polaroid
+            .fromTo(
+                q(".sello"),
+                { opacity: 0, scale: 1.6 },
+                { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(2)" },
+                1.2,
+            )
+            .fromTo(
+                seccion.querySelectorAll(
+                    ".flor-anturio, .flor-medio, .flor-blanca, .flor-esquina, .logo",
+                ),
+                { opacity: 0, y: 10 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.9,
+                    stagger: 0.12,
+                    ease: "power2.out",
+                },
+                0.7,
+            );
+    });
+</script>

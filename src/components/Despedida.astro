@@ -1,0 +1,348 @@
+---
+// src/components/Despedida.astro
+// Cierre de la invitación: "Confirmar Asistencia" arriba, el mismo sobre
+// de la portada con la tarjeta bordó por delante (el pedido, "¡Te
+// esperamos!" y el botón que abre WhatsApp) y, al pie, los nombres.
+//
+// El sello de lacre es parte de la imagen del sobre; para que quede POR
+// ENCIMA de la tarjeta se repite la misma imagen recortada al sello,
+// igual que en Portada.astro.
+
+/*
+   Cuántos lugares reserva la invitación. Hoy Invitacion.astro no se lo
+   pasa, así que queda en 0 y no se dibuja el renglón del pase. Para
+   mostrarlo: <Despedida pases={pases} /> en Invitacion.astro.
+*/
+export interface Props {
+    pases?: number;
+}
+const { pases = 0 } = Astro.props;
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Confirmar Asistencia";
+const pedido = ["Por favor confirma antes del", "10 de septiembre"];
+const frase = "Será un honor contar con tu presencia";
+const esperamos = "¡Te esperamos!";
+const textoBoton = "Confirmar";
+const novios = "Leslie & David";
+// El sobre con flores, monograma y sello (el mismo de la portada)
+const sobre = "/imagenes/sobre.png";
+
+/*
+   El botón abre WhatsApp con el mensaje ya escrito. El número va con el
+   código de país y sin el + ni espacios, que es como lo pide wa.me.
+*/
+const telefono = "59161006490";
+const nombresMensaje = "Leslie y David";
+const fechaBoda = "19 de diciembre de 2026";
+const mensaje = `Me complace confirmar mi asistencia a la boda de ${nombresMensaje}, el ${fechaBoda}.`;
+const enlaceConfirmar = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+
+/*
+   El pase se arma solo con el número que llega por props: 1 da "Pase para
+   una persona" y 2 "Pase para dos personas". Si el número pasa la lista,
+   cae al dígito ("Pase para 12 personas"). En 0 queda en null.
+*/
+const enLetras = [
+    "", // el 0 no se usa: está para que el 1 caiga en "una"
+    "una",
+    "dos",
+    "tres",
+    "cuatro",
+    "cinco",
+    "seis",
+    "siete",
+    "ocho",
+    "nueve",
+    "diez",
+];
+const cantidad = enLetras[pases] ?? String(pases);
+const pase =
+    pases > 0
+        ? `Pase para ${cantidad} ${pases === 1 ? "persona" : "personas"}`
+        : null;
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="despedida" class="seccion">
+    <p class="titulo font-great-vibes">{titulo}</p>
+    <p class="pedido">
+        <span>{pedido[0]}</span>
+        <span>{pedido[1]}</span>
+    </p>
+
+    <div id="grupo-despedida" class="grupo">
+        <!-- El sobre, con sus flores, monograma y sello -->
+        <img
+            src={sobre}
+            alt=""
+            width="998"
+            height="679"
+            aria-hidden="true"
+            class="sobre"
+        />
+
+        <!-- Tarjeta bordó por delante del sobre -->
+        <div class="tarjeta">
+            <p class="t-frase">{frase}</p>
+            <p class="t-esperamos font-great-vibes">{esperamos}</p>
+            {pase && <p class="t-pase">{pase}</p>}
+            <a
+                class="boton"
+                href={enlaceConfirmar}
+                target="_blank"
+                rel="noopener noreferrer">{textoBoton}</a
+            >
+
+            <!-- Flor colgando en la esquina de abajo a la derecha -->
+            <img
+                src="/imagenes/florabajo.png"
+                alt=""
+                width="538"
+                height="1204"
+                aria-hidden="true"
+                class="flor-abajo"
+            />
+        </div>
+
+        <!-- El sello otra vez, recortado, para que pise la tarjeta -->
+        <img
+            src={sobre}
+            alt=""
+            width="998"
+            height="679"
+            aria-hidden="true"
+            class="sobre sello"
+        />
+    </div>
+
+    <p class="novios font-great-vibes">{novios}</p>
+</section>
+
+<style>
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        /* Aire abajo: es el final de la página y el botón de la música
+           no tiene que tapar los nombres */
+        padding: 8cqw 0 22cqw;
+        text-align: center;
+    }
+
+    .titulo {
+        margin: 0;
+        color: #5b6440;
+        font-size: 12cqw;
+        line-height: 1.15;
+    }
+
+    .pedido {
+        margin: 3cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 4.2cqw;
+        line-height: 1.35;
+        letter-spacing: 0.03em;
+        color: #6e5a52;
+    }
+
+    .pedido span {
+        display: block;
+    }
+
+    /* ── Sobre + tarjeta ────────────────────────────────────── */
+    .grupo {
+        position: relative;
+        width: 80cqw;
+        margin: 6cqw auto 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sobre {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+        filter: drop-shadow(0 8px 14px rgba(60, 45, 25, 0.18));
+    }
+
+    /*
+       El sello de lacre (centro en 51,2% / 64,8% de la imagen del sobre)
+       recortado de una segunda copia, para que quede encima de la tarjeta.
+    */
+    .sello {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 3;
+        pointer-events: none;
+        clip-path: ellipse(10% 14.5% at 51.2% 64.8%);
+        filter: drop-shadow(0 3px 4px rgba(60, 40, 10, 0.35));
+    }
+
+    /*
+       La tarjeta arranca a la altura del sello: el margen negativo (en %
+       del ancho del grupo) la sube sobre la parte de abajo del sobre.
+       Es más ancha que la de la portada: casi todo el sobre.
+    */
+    .tarjeta {
+        position: relative;
+        z-index: 2;
+        width: 98%;
+        margin-top: -25%;
+        padding: 14cqw 6cqw 7cqw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #f4efe3;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #7a2335 0%, #6f1f30 100%);
+        box-shadow: 0 12px 26px rgba(70, 20, 30, 0.3);
+    }
+
+    .t-frase {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 4.4cqw;
+        line-height: 1.3;
+        letter-spacing: 0.03em;
+    }
+
+    .t-esperamos {
+        margin: 3cqw 0 0;
+        font-size: 7.6cqw;
+        line-height: 1.15;
+        color: #f7f2e6;
+    }
+
+    .t-pase {
+        margin: 2cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 3.8cqw;
+        letter-spacing: 0.03em;
+        color: #efe8d6;
+    }
+
+    .boton {
+        display: inline-block;
+        margin-top: 5cqw;
+        padding: 1.4cqw 5.6cqw;
+        border-radius: 999px;
+        font-family: "Cinzel", serif;
+        font-size: 4.4cqw;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+        color: #7a2335;
+        background-image: linear-gradient(#f6f1e8, #f6f1e8);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        position: absolute;
+        right: -4%;
+        bottom: -14%;
+        width: 13%;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    .novios {
+        margin: 12cqw 0 0;
+        color: #7a2335;
+        font-size: 15cqw;
+        line-height: 1.1;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("despedida");
+        const grupo = document.getElementById("grupo-despedida");
+        if (!seccion || !grupo) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const tarjeta = grupo.querySelector(".tarjeta");
+        const flor = grupo.querySelector(".flor-abajo");
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 78%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl.fromTo(
+            seccion.querySelectorAll(".titulo, .pedido"),
+            { opacity: 0, y: 14 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.9,
+                stagger: 0.2,
+                ease: "power2.out",
+            },
+        )
+            .fromTo(
+                grupo,
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 1.1, ease: "power3.out" },
+                0.4,
+            )
+            // La tarjeta asoma un poco más tarde, subiendo del sobre
+            .fromTo(
+                tarjeta,
+                { y: 24 },
+                { y: 0, duration: 1, ease: "power3.out" },
+                0.6,
+            )
+            .fromTo(
+                flor,
+                { opacity: 0, rotate: -8, transformOrigin: "50% 0%" },
+                { opacity: 1, rotate: 0, duration: 1.1, ease: "power2.out" },
+                1.1,
+            );
+
+        /*
+           Los nombres del pie tienen su propio disparador: quedan lejos.
+           Arranca apenas asoman ("top bottom"): esta es la última sección
+           y con un punto más exigente la página se termina antes de
+           llegar, y los nombres se quedan invisibles.
+        */
+        gsap.fromTo(
+            seccion.querySelector(".novios"),
+            { opacity: 0, y: 16 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: seccion.querySelector(".novios"),
+                    start: "top bottom",
+                    toggleActions: "play none none reset",
+                },
+            },
+        );
+    });
+</script>

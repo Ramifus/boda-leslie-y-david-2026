@@ -1,0 +1,211 @@
+---
+// src/components/NombresFlores.astro
+// Primera sección después de la portada: la foto de los novios a sangre,
+// fundida abajo con el papel, y encima del fundido los nombres en dos
+// renglones y la fecha entre rayitas.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const foto = "/imagenes/foto1.png";
+const alt = "Leslie y David juntos";
+const novio = "Leslie &";
+const novia = "David";
+const fechaMes = "dic";
+const fechaDia = "19";
+const fechaAnio = "2026";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="sobre-novios" class="seccion">
+    <!-- La foto, a sangre y fundida abajo con el papel -->
+    <div id="nf-foto-caja" class="foto-caja">
+        <img id="nf-foto" src={foto} alt={alt} class="foto" />
+    </div>
+
+    <!-- Nombres y fecha, montados sobre el fundido -->
+    <div id="nf-texto" class="texto">
+        <p class="nombres font-great-vibes">
+            <span>{novio}</span>
+            <span>{novia}</span>
+        </p>
+        <p class="fecha">
+            <span>{fechaMes}</span>
+            <i aria-hidden="true"></i>
+            <span class="fecha-dia">{fechaDia}</span>
+            <i aria-hidden="true"></i>
+            <span>{fechaAnio}</span>
+        </p>
+    </div>
+</section>
+
+<style>
+    /*
+       Sección a sangre: la foto llega a los dos bordes de la columna.
+       El papel va declarado como degradado y no como color: el modo
+       oscuro forzado oscurece colores pero respeta las imágenes.
+    */
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        /* Blanco como el resto de la página: con crema se notaba el corte */
+        background-image: linear-gradient(#ffffff, #ffffff);
+        padding-bottom: 9cqw;
+    }
+
+    .foto-caja {
+        position: relative;
+        width: 100%;
+        height: 128cqw;
+        max-height: 78svh;
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(
+            180deg,
+            #000 0%,
+            #000 58%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        mask-image: linear-gradient(
+            180deg,
+            #000 0%,
+            #000 58%,
+            rgba(0, 0, 0, 0) 100%
+        );
+    }
+
+    .foto {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 40%;
+    }
+
+    /* Se monta apenas sobre el final del fundido de la foto */
+    .texto {
+        position: relative;
+        z-index: 2;
+        margin-top: -6cqw;
+        text-align: center;
+    }
+
+    .nombres {
+        margin: 0;
+        color: #7a2335;
+        font-size: 17cqw;
+        line-height: 1.12;
+    }
+
+    .nombres span {
+        display: block;
+    }
+
+    .fecha {
+        margin: 6cqw 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4.4cqw;
+        /*
+           Cinzel: mayúsculas romanas finas y números todos a la misma
+           altura. La Cormorant tenía el 1 chiquito y el 9 colgando.
+        */
+        font-family: "Cinzel", serif;
+        font-weight: 400;
+        font-size: 5.6cqw;
+        line-height: 1;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #6e5a52;
+    }
+
+    .fecha i {
+        display: block;
+        width: 1px;
+        height: 9cqw;
+        background-image: linear-gradient(#b9a79c, #b9a79c);
+    }
+
+    .fecha-dia {
+        font-size: 10cqw;
+        letter-spacing: 0.06em;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const caja = document.getElementById("nf-foto-caja");
+        const foto = document.getElementById("nf-foto");
+        const texto = document.getElementById("nf-texto");
+        if (!caja || !foto || !texto) return;
+
+        // Sin animación si el visitante pidió menos movimiento: la
+        // sección ya está armada y visible en el HTML.
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const renglones = [
+            ...Array.from(texto.querySelectorAll(".nombres span")),
+            texto.querySelector(".fecha"),
+        ];
+
+        gsap.set(caja, { opacity: 0 });
+        gsap.set(foto, { scale: 1.12 });
+        gsap.set(renglones, { opacity: 0, y: 18 });
+
+        /*
+           Arranca pausada. Con portada la larga el botón de ingreso (un
+           ScrollTrigger se consumiría solo, tapado por la portada); sin
+           portada, la larga el scroll como en las demás secciones.
+        */
+        const linea = gsap.timeline({ paused: true });
+
+        linea
+            // 1 · la foto aparece y se va acomodando
+            .to(caja, { opacity: 1, duration: 1, ease: "power2.out" })
+            .to(foto, { scale: 1, duration: 2.6, ease: "power2.out" }, 0)
+            // 2 · los nombres y la fecha, uno tras otro
+            .to(
+                renglones,
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.9,
+                    stagger: 0.22,
+                    ease: "power2.out",
+                },
+                0.7,
+            );
+
+        // ═══ QUIÉN LARGA LA ENTRADA ═══
+        function arrancar() {
+            // La portada bloqueaba el scroll: las medidas de la carga ya
+            // no valen y hay que rehacerlas antes de reproducir.
+            ScrollTrigger.refresh();
+            linea.restart();
+        }
+
+        const portada = document.getElementById("portada-section");
+
+        if ((window as any).portadaAbierta) {
+            arrancar();
+        } else if (portada) {
+            window.addEventListener("portada-abierta", arrancar, {
+                once: true,
+            });
+        } else {
+            ScrollTrigger.create({
+                trigger: caja,
+                start: "top 78%",
+                onEnter: () => linea.restart(),
+                onLeaveBack: () => linea.pause(0),
+            });
+        }
+    });
+</script>

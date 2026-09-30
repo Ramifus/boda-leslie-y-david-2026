@@ -1,0 +1,229 @@
+---
+// src/components/NombresPadrinos.astro
+// Tarjeta champán (el color propio de padres y padrinos, para que se
+// distingan de las tarjetas verdes y bordó) con "Nuestros Padrinos" y
+// los dos pares, armados igual que en NombresPadres: rótulo en Cinzel
+// negrita dorada, un nombre por renglón y el separador dorado entre
+// ambos. La misma flor colgante (florabajo.png) pisa dos esquinas.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Nuestros Padrinos";
+
+const pares = [
+    {
+        rotulo: "Padrinos de Boda Religiosa",
+        nombres: ["Rafael Pérez Cossio", "Sandra Choque"],
+    },
+    {
+        rotulo: "Padrinos de Boda Civil",
+        nombres: ["Weymar Cervantes Díaz", "Alicia Galarza"],
+    },
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="padrinos" class="seccion">
+    <div id="bloque-padrinos" class="tarjeta">
+        <p class="titulo font-great-vibes">{titulo}</p>
+
+        {
+            pares.map((p, i) => (
+                <>
+                    {i > 0 && (
+                        <img
+                            src="/imagenes/separador.png"
+                            alt=""
+                            width="963"
+                            height="64"
+                            aria-hidden="true"
+                            class="separador"
+                        />
+                    )}
+                    <div class="par">
+                        <p class="rotulo">{p.rotulo}</p>
+                        {p.nombres.map((n) => (
+                            <p class="nombre">{n}</p>
+                        ))}
+                    </div>
+                </>
+            ))
+        }
+
+        <!-- La misma flor en dos esquinas -->
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-arriba"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-abajo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 6% 0 16%;
+    }
+
+    /* Las letras se miden contra la tarjeta, no contra la pantalla */
+    .tarjeta {
+        container-type: inline-size;
+        position: relative;
+        width: 90%;
+        margin: 0 auto;
+        padding: 11cqw 7cqw 11cqw;
+        text-align: center;
+        color: #5a2330;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #f1e7d6 0%, #e7d8bf 100%);
+        /* Filete dorado por dentro del borde, además de la sombra */
+        box-shadow:
+            inset 0 0 0 1.5cqw #f1e7d6,
+            inset 0 0 0 calc(1.5cqw + 1px) rgba(176, 138, 62, 0.6),
+            0 10px 24px rgba(90, 60, 30, 0.18);
+    }
+
+    .titulo {
+        margin: 0;
+        font-size: 14cqw;
+        line-height: 1.1;
+        color: #7a2335;
+    }
+
+    .par {
+        margin-top: 6cqw;
+    }
+
+    /* La misma Cinzel de los nombres, pero en negrita y dorada */
+    .rotulo {
+        margin: 0 0 2.4cqw;
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 7cqw;
+        line-height: 1.2;
+        letter-spacing: 0.03em;
+        color: #9a7433;
+    }
+
+    .nombre {
+        margin: 1.4cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 5.9cqw;
+        line-height: 1.3;
+        letter-spacing: 0.02em;
+        color: #5a2330;
+    }
+
+    .separador {
+        display: block;
+        width: 70cqw;
+        height: auto;
+        margin: 8cqw auto 0;
+        opacity: 0.9;
+    }
+
+    .flor {
+        position: absolute;
+        z-index: 2;
+        width: 15cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Cuelga desde la esquina de arriba a la izquierda */
+    .flor-arriba {
+        top: -8cqw;
+        left: -5cqw;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        right: -5cqw;
+        bottom: -16cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const tarjeta = document.getElementById("bloque-padrinos");
+        if (!tarjeta) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: tarjeta,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+        })
+            .fromTo(
+                tarjeta,
+                { opacity: 0, y: 24 },
+                { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+            )
+            .fromTo(
+                tarjeta.querySelector(".titulo"),
+                { opacity: 0, y: 12 },
+                { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" },
+                0.6,
+            )
+            .fromTo(
+                tarjeta.querySelectorAll(".flor"),
+                { opacity: 0, rotate: -8, transformOrigin: "50% 0%" },
+                {
+                    opacity: 1,
+                    rotate: 0,
+                    duration: 1.1,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                },
+                0.5,
+            );
+
+        // Cada par entra cuando llega a la pantalla: la tarjeta es alta
+        tarjeta.querySelectorAll(".par").forEach((par) => {
+            gsap.fromTo(
+                par.children,
+                { opacity: 0, y: 10 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.7,
+                    stagger: 0.12,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: par,
+                        start: "top 88%",
+                        toggleActions: "play none none reset",
+                    },
+                },
+            );
+        });
+    });
+</script>

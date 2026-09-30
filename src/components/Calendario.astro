@@ -1,0 +1,260 @@
+---
+// src/components/Calendario.astro
+// Tarjeta verde con el nombre del mes en Great Vibes, la grilla del mes
+// (la semana arranca el lunes) y el día de la boda rodeado por un corazón.
+// La misma flor colgante (florabajo.png) pisa dos esquinas: arriba a la
+// izquierda y abajo a la derecha.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// La boda: 19 de diciembre de 2026 (mes 11 porque enero es 0)
+const anioBoda = 2026;
+const mesBoda = 11;
+const diaBoda = 19;
+const nombreMes = "Diciembre";
+// ──────────────────────────────────────────────────────────────
+
+const cabeceras = ["L", "M", "M", "J", "V", "S", "D"];
+
+/*
+   La grilla se arma sola con la fecha: así el mes siempre cae en el día
+   de la semana correcto. getDay() cuenta desde el domingo; el +6 % 7 lo
+   corre para que la semana empiece el lunes.
+*/
+const primerDia = (new Date(anioBoda, mesBoda, 1).getDay() + 6) % 7;
+const diasDelMes = new Date(anioBoda, mesBoda + 1, 0).getDate();
+
+const celdas: (number | null)[] = [
+    ...Array(primerDia).fill(null),
+    ...Array.from({ length: diasDelMes }, (_, i) => i + 1),
+];
+while (celdas.length % 7 !== 0) celdas.push(null);
+---
+
+<section id="calendario" class="seccion">
+    <div id="tarjeta-calendario" class="tarjeta">
+        <p class="mes font-great-vibes">{nombreMes}</p>
+
+        <div class="grilla cabecera">
+            {cabeceras.map((c) => <span>{c}</span>)}
+        </div>
+        <span class="linea" aria-hidden="true"></span>
+
+        <div class="grilla dias">
+            {
+                celdas.map((d) =>
+                    d === diaBoda ? (
+                        <span class="dia-boda">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 21s-7.5-4.7-9.3-9A5.3 5.3 0 0 1 12 6.5 5.3 5.3 0 0 1 21.3 12c-1.8 4.3-9.3 9-9.3 9z" />
+                            </svg>
+                            <b>{d}</b>
+                        </span>
+                    ) : (
+                        <span>{d ?? ""}</span>
+                    ),
+                )
+            }
+        </div>
+
+        <!-- La misma flor en dos esquinas -->
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="828"
+            height="1476"
+            aria-hidden="true"
+            class="flor flor-arriba"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="828"
+            height="1476"
+            aria-hidden="true"
+            class="flor flor-abajo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 12% 0 16%;
+    }
+
+    /* Las letras se miden contra la tarjeta, no contra la pantalla */
+    .tarjeta {
+        container-type: inline-size;
+        position: relative;
+        width: 92%;
+        margin: 0 auto;
+        padding: 6cqw 5cqw 7cqw;
+        text-align: center;
+        color: #f4efe3;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #4d5c3a 0%, #46553a 100%);
+        box-shadow: 0 10px 24px rgba(40, 50, 28, 0.25);
+    }
+
+    .mes {
+        margin: 0 0 4cqw;
+        font-size: 12cqw;
+        line-height: 1.1;
+        color: #f7f2e6;
+    }
+
+    .grilla {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        align-items: center;
+        font-family: "Cinzel", serif;
+        color: #f1ebdc;
+    }
+
+    .cabecera {
+        font-size: 5cqw;
+        padding-bottom: 2.4cqw;
+    }
+
+    .linea {
+        display: block;
+        height: 1px;
+        margin: 0 1cqw 3cqw;
+        background-image: linear-gradient(#e9e0cc, #e9e0cc);
+        opacity: 0.8;
+    }
+
+    .dias {
+        row-gap: 3.2cqw;
+        font-size: 4.4cqw;
+    }
+
+    .dias span {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 8cqw;
+    }
+
+    /* El día de la boda, adentro de un corazón de línea */
+    .dia-boda svg {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 13cqw;
+        height: 13cqw;
+        transform: translate(-50%, -52%);
+        overflow: visible;
+    }
+
+    .dia-boda path {
+        fill: none;
+        stroke: #f4efe3;
+        stroke-width: 1.3;
+    }
+
+    .dia-boda b {
+        position: relative;
+        font-weight: 400;
+        font-size: 4.8cqw;
+    }
+
+    .flor {
+        position: absolute;
+        z-index: 2;
+        width: 15cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Cuelga desde la esquina de arriba a la izquierda */
+    .flor-arriba {
+        top: -8cqw;
+        left: -5cqw;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        right: -5cqw;
+        bottom: -16cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const tarjeta = document.getElementById("tarjeta-calendario");
+        if (!tarjeta) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const mes = tarjeta.querySelector(".mes");
+        const dias = tarjeta.querySelectorAll(".cabecera span, .dias span");
+        const corazon = tarjeta.querySelector(".dia-boda svg");
+        const flores = tarjeta.querySelectorAll(".flor");
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: tarjeta,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl.fromTo(
+            tarjeta,
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+        )
+            .fromTo(
+                mes,
+                { opacity: 0, y: 10 },
+                { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                0.35,
+            )
+            .fromTo(
+                dias,
+                { opacity: 0 },
+                { opacity: 1, duration: 0.5, stagger: 0.012 },
+                0.6,
+            )
+            .fromTo(
+                corazon,
+                { opacity: 0, scale: 0.4 },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    duration: 0.8,
+                    ease: "back.out(2)",
+                },
+                1.2,
+            )
+            .fromTo(
+                flores,
+                { opacity: 0, rotate: -8, transformOrigin: "50% 0%" },
+                {
+                    opacity: 1,
+                    rotate: 0,
+                    duration: 1.1,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                },
+                0.5,
+            );
+    });
+</script>

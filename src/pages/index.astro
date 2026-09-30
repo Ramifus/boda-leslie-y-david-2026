@@ -1,0 +1,13 @@
+---
+// src/pages/index.astro
+// La invitación SIN pase: no le pasa `pases` a Invitacion, así que la
+// barrita del pase no se dibuja. Es la que se comparte en un grupo.
+//
+// Las que llevan pase viven todas en pase[cantidad].astro: /pase1, /pase2...
+import Layout from "../layouts/Layout.astro";
+import Invitacion from "../components/Invitacion.astro";
+---
+
+<Layout title="Ayato & Fabiola | 24 de Octubre 2026">
+    <Invitacion />
+</Layout>

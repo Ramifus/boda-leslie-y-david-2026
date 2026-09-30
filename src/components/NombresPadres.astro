@@ -1,0 +1,247 @@
+---
+// src/components/NombresPadres.astro
+// Tarjeta champán (el mismo color de NombresPadrinos: padres y padrinos
+// se distinguen así de las tarjetas verdes y bordó) con "Con la bendición
+// de Dios y de Nuestros Padres" y los dos grupos (los de la novia y los del novio), cada uno con su
+// rótulo en Cinzel negrita dorada y los nombres en Cinzel bordó, separados
+// por el separador dorado. La flor colgante pisa dos esquinas.
+//
+// Cada grupo lleva la lista de nombres que tenga: si un padre no va, se
+// saca de la lista y el grupo se arma igual.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const intro = "Con la bendición de Dios y de";
+const titulo = "Nuestros Padres";
+
+const grupos = [
+    {
+        rotulo: "Padres de la Novia",
+        nombres: ["Francisco Yevara Mancilla", "Rosario Rodríguez Gareca"],
+    },
+    {
+        rotulo: "Madre del Novio",
+        nombres: ["Andrea Rosalía Laura"],
+    },
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="nombres-padres" class="seccion">
+    <div id="bloque-padres" class="bloque">
+        <p class="intro">{intro}</p>
+        <p class="titulo font-great-vibes">{titulo}</p>
+
+        {
+            grupos.map((g, i) => (
+                <>
+                    {i > 0 && (
+                        <img
+                            src="/imagenes/separador.png"
+                            alt=""
+                            width="963"
+                            height="64"
+                            aria-hidden="true"
+                            class="separador"
+                        />
+                    )}
+                    <div class="grupo">
+                        <p class="rotulo">{g.rotulo}</p>
+                        {g.nombres.map((n) => (
+                            <p class="nombre">{n}</p>
+                        ))}
+                    </div>
+                </>
+            ))
+        }
+
+        <!-- La misma flor en dos esquinas -->
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-arriba"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-abajo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 10% 0 14%;
+    }
+
+    /* Las letras se miden contra el bloque, no contra la pantalla */
+    .bloque {
+        container-type: inline-size;
+        position: relative;
+        width: 90%;
+        margin: 0 auto;
+        padding: 10cqw 7cqw 11cqw;
+        text-align: center;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(255, 255, 255, 0.35) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #f1e7d6 0%, #e7d8bf 100%);
+        /* Filete dorado por dentro del borde, además de la sombra */
+        box-shadow:
+            inset 0 0 0 1.5cqw #f1e7d6,
+            inset 0 0 0 calc(1.5cqw + 1px) rgba(176, 138, 62, 0.6),
+            0 10px 24px rgba(90, 60, 30, 0.18);
+    }
+
+    .intro {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 5.2cqw;
+        letter-spacing: 0.03em;
+        color: #6e5a52;
+    }
+
+    .titulo {
+        margin: 3cqw 0 0;
+        color: #7a2335;
+        font-size: 15cqw;
+        line-height: 1.15;
+    }
+
+    .grupo {
+        margin-top: 6cqw;
+    }
+
+    /* La misma Cinzel de los nombres, pero en negrita y dorada */
+    .rotulo {
+        margin: 0 0 2.4cqw;
+        font-family: "Cinzel", serif;
+        font-weight: 700;
+        font-size: 7cqw;
+        line-height: 1.2;
+        letter-spacing: 0.03em;
+        color: #9a7433;
+    }
+
+    .nombre {
+        margin: 1.4cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 5.9cqw;
+        line-height: 1.3;
+        letter-spacing: 0.03em;
+        color: #5a2330;
+    }
+
+    .separador {
+        display: block;
+        width: 70cqw;
+        height: auto;
+        margin: 8cqw auto 0;
+        opacity: 0.9;
+    }
+
+    .flor {
+        position: absolute;
+        z-index: 2;
+        width: 15cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Cuelga desde la esquina de arriba a la izquierda */
+    .flor-arriba {
+        top: -8cqw;
+        left: -5cqw;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        right: -5cqw;
+        bottom: -16cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const bloque = document.getElementById("bloque-padres");
+        if (!bloque) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        // Encabezado: intro y título
+        gsap.fromTo(
+            bloque.querySelectorAll(".intro, .titulo"),
+            { opacity: 0, y: 14 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.9,
+                stagger: 0.18,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: bloque,
+                    start: "top 82%",
+                    toggleActions: "play none none reset",
+                },
+            },
+        );
+
+        // Cada grupo entra cuando llega a la pantalla
+        bloque.querySelectorAll(".grupo").forEach((grupo) => {
+            gsap.fromTo(
+                grupo.children,
+                { opacity: 0, y: 12 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.15,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: grupo,
+                        start: "top 88%",
+                        toggleActions: "play none none reset",
+                    },
+                },
+            );
+        });
+
+        // El separador se abre desde el centro
+        bloque.querySelectorAll(".separador").forEach((sep) => {
+            gsap.fromTo(
+                sep,
+                { opacity: 0, scaleX: 0.2 },
+                {
+                    opacity: 0.9,
+                    scaleX: 1,
+                    duration: 0.9,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: sep,
+                        start: "top 90%",
+                        toggleActions: "play none none reset",
+                    },
+                },
+            );
+        });
+    });
+</script>

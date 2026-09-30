@@ -1,0 +1,91 @@
+---
+// src/components/Seccion.astro
+// Frase en Cinzel bordó y, debajo, el auto de los recién casados con las
+// flores y las cintas colgando (carro.png).
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const frase =
+    "Estaban las nubes escribiendo nuestros nombres en el cielo, como si el destino hubiera decidido unir nuestras historias desde mucho antes de conocernos.";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="seccion-carro" class="seccion">
+    <p class="frase">{frase}</p>
+
+    <img
+        src="/imagenes/carro.png"
+        alt=""
+        width="713"
+        height="715"
+        aria-hidden="true"
+        class="carro"
+    />
+</section>
+
+<style>
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 6cqw 6cqw 10cqw;
+        text-align: center;
+    }
+
+    .frase {
+        margin: 0 auto;
+        max-width: 96%;
+        font-family: "Cinzel", serif;
+        font-size: 5cqw;
+        line-height: 1.35;
+        letter-spacing: 0.02em;
+        color: #7a2335;
+    }
+
+    .carro {
+        display: block;
+        width: 62cqw;
+        height: auto;
+        margin: 7cqw auto 0;
+        user-select: none;
+        pointer-events: none;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("seccion-carro");
+        if (!seccion) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const frase = seccion.querySelector(".frase");
+        const carro = seccion.querySelector(".carro");
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 80%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl.fromTo(
+            frase,
+            { opacity: 0, y: 16 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+        ).fromTo(
+            // El auto llega desde abajo, como acercándose
+            carro,
+            { opacity: 0, y: 30, scale: 0.94 },
+            { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: "power3.out" },
+            0.45,
+        );
+    });
+</script>

@@ -1,0 +1,179 @@
+---
+// src/components/Puntualidad.astro
+// El pedido de puntualidad, sobre el bloque terracota: una sola frase con
+// dos palabras resaltadas en caligrafía, el reloj arriba y el remate de
+// hojas abajo.
+//
+// Va en bloque de color y no sobre el papel, como la Recepción: la sección
+// es corta y tiene que cortar la lectura para que se note.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// La frase se arma por partes para poder resaltar dos palabras sueltas.
+const inicio = "Tu puntualidad es";
+const resalte1 = "clave";
+const medio = "para que todo salga como lo";
+const resalte2 = "soñamos";
+const final = ".";
+// ──────────────────────────────────────────────────────────────
+---
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- ⏱️ PUNTUALIDAD                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section id="puntualidad" class="relative w-full overflow-hidden">
+    <!--
+       Filete doble, como el marco del modelo. Van antes que los ramos en el
+       markup a propósito: sin z-index propio, el orden del documento
+       decide, y así las flores les pasan por encima como en la papelería
+       de verdad.
+    -->
+    <span class="filete filete-externo" aria-hidden="true"></span>
+    <span class="filete filete-interno" aria-hidden="true"></span>
+
+    <!-- Ramos en diagonal, como en las demás secciones -->
+    <img
+        src="/imagenes/flores2.png"
+        alt=""
+        aria-hidden="true"
+        class="ramo ramo-si"
+    />
+    <img
+        src="/imagenes/flores2.png"
+        alt=""
+        aria-hidden="true"
+        class="ramo ramo-id"
+    />
+
+    <div
+        id="bloque-puntualidad"
+        class="relative flex flex-col items-center px-9 py-16 text-center"
+    >
+        <!-- El reloj se pinta con máscara, no con filtros -->
+        <span
+            class="icono icono-crema reloj"
+            style="--ic:url('/imagenes/hora.png')"
+            aria-hidden="true"></span>
+
+        <p class="frase font-cormorant">
+            {inicio}
+            <span class="resalte font-great-vibes">{resalte1}</span>
+            {medio}
+            <span class="resalte font-great-vibes">{resalte2}</span>{final}
+        </p>
+
+        <span class="separador" aria-hidden="true">
+            <span class="chevrones font-cormorant">&#187;&#187;&#187;</span>
+            <b class="corazon">&#9829;</b>
+            <span class="chevrones font-cormorant">&#171;&#171;&#171;</span>
+        </span>
+    </div>
+</section>
+
+<style>
+    /* Terracota liso, el mismo tono que la recepción */
+    #puntualidad {
+        background: #b45733;
+    }
+
+    /*
+       Filete doble: el de afuera marca el borde y el de adentro lo dobla
+       más tenue, que es lo que le da el aire de marco impreso en vez de un
+       simple recuadro.
+    */
+    .filete {
+        position: absolute;
+        border: 1px solid rgba(253, 244, 236, 0.32);
+        border-radius: 10px;
+        pointer-events: none;
+    }
+
+    .filete-externo {
+        inset: 13px;
+    }
+
+    .filete-interno {
+        inset: 19px;
+        border-color: rgba(253, 244, 236, 0.18);
+        border-radius: 7px;
+    }
+
+    /* ── Ramos de las esquinas ── */
+    .ramo {
+        position: absolute;
+        width: 32%;
+        height: auto;
+        z-index: 0;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .ramo-si {
+        top: 0;
+        left: -13%;
+        transform: scaleY(-1) rotate(4deg);
+    }
+
+    .ramo-id {
+        bottom: 0;
+        right: -13%;
+        transform: scaleX(-1) rotate(4deg);
+    }
+
+    .reloj {
+        width: 2.4rem;
+        height: 2.4rem;
+        margin-bottom: 1.2rem;
+    }
+
+    /* ── La frase ── */
+    .frase {
+        color: #fdf6ee;
+        font-size: clamp(1.35rem, 6.2vw, 1.7rem);
+        line-height: 1.75;
+        max-width: 20rem;
+    }
+
+    /*
+       Las dos palabras resaltadas van en caligrafía y un punto más grandes.
+       El vertical-align las recentra: Great Vibes se apoya bajo la línea
+       base y sin esto quedan colgando respecto del serif de al lado.
+    */
+    .resalte {
+        color: #ffe9d5;
+        font-size: 1.45em;
+        line-height: 1;
+        vertical-align: -0.08em;
+        margin: 0 0.06em;
+    }
+
+    /* Rayita · corazón · rayita, el mismo remate del resto de la invitación */
+    .separador {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-top: 1.6rem;
+    }
+
+    .chevrones {
+        color: rgba(253, 244, 236, 0.75);
+        font-size: 0.85rem;
+        letter-spacing: 0.1em;
+        line-height: 1;
+    }
+
+    .corazon {
+        color: #fbeee2;
+        font-size: 0.85rem;
+        line-height: 1;
+        font-weight: 400;
+    }
+</style>
+
+<script>
+    import { animarEntrada } from "../scripts/animaciones";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const bloque = document.getElementById("bloque-puntualidad");
+        if (bloque) animarEntrada(bloque.children, bloque);
+    });
+</script>

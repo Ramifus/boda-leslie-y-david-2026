@@ -1,0 +1,128 @@
+---
+// src/layouts/Layout.astro
+import "../styles/global.css";
+export interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+
+/*
+   ── La vista previa al compartir el link ──────────────────────
+   La imagen va en 1200x630, que es la franja que usa WhatsApp. Si se
+   pone la portada tal cual —que es vertical— WhatsApp le corta arriba y
+   abajo y se ve un pedazo del medio; por eso miniatura-whatsapp.jpg
+   tiene la portada entera adentro y los costados rellenos de verde.
+
+   La ruta se arma con Astro.site (la dirección del config): WhatsApp no
+   sigue rutas relativas, necesita la dirección completa.
+
+   No va og:description a propósito: sin ella WhatsApp muestra la imagen
+   grande y solo el nombre debajo, que es lo que se busca. Con
+   descripción agrega un párrafo de texto que ensucia la tarjeta.
+*/
+const miniatura = new URL('/imagenes/miniatura-whatsapp.jpg', Astro.site).href;
+const paginaActual = new URL(Astro.url.pathname, Astro.site).href;
+const tituloPreview = 'Ayato & Fabiola';
+---
+
+<!doctype html>
+<html lang="es" class="m-0 p-0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="only light" />
+    <link rel="icon" type="image/png" href="/iconos/Anillos.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <!-- ── Vista previa al compartir el link ─────────────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={tituloPreview} />
+    <meta property="og:title" content={tituloPreview} />
+    <meta property="og:url" content={paginaActual} />
+    <meta property="og:image" content={miniatura} />
+    <meta property="og:image:secure_url" content={miniatura} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={tituloPreview} />
+    <meta property="og:locale" content="es_ES" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={tituloPreview} />
+    <meta name="twitter:image" content={miniatura} />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Crimson+Text:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Crimson+Text:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Forzar modo claro y evitar dark mode del navegador */
+      html {
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        color-scheme: only light;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100vh;
+        overflow-x: hidden;
+        color-scheme: only light;
+        /* Fuera de la columna móvil (tablet / PC) */
+        background-color: #e9e4dd;
+      }
+
+      /* La invitación SIEMPRE se ve como celular: columna centrada */
+      main {
+        width: 100%;
+        max-width: 430px;
+        margin: 0 auto;
+        min-height: 100vh;
+        /*
+           Papel blanco liso de punta a punta. Antes acá iba la acuarela
+           (fondo.webp); se sacó a pedido.
+
+           El blanco va declarado como imagen y no como color: el modo
+           oscuro forzado de algunos celulares oscurece los colores pero
+           respeta las imágenes, así que escrito así la hoja no se vuelve
+           gris ni negra.
+        */
+        background-image: linear-gradient(#ffffff, #ffffff);
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen m-0 p-0">
+    <main class="m-0 p-0 overflow-x-hidden">
+      <slot />
+    </main>
+  </body>
+</html>

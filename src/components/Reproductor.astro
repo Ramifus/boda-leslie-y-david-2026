@@ -1,0 +1,499 @@
+---
+// src/components/Reproductor.astro
+// Tarjeta blanca con el reproductor de la melodía, y las flores amarillas
+// asomando desde la esquina de arriba a la izquierda, como en el diseño.
+// Comparte la melodía con la portada a través de window.audioGlobal: si
+// la portada ya la arrancó al tocar el sobre, este reproductor se engancha
+// a esa misma; si no, la crea él. Nunca hay dos audios sonando.
+//
+// Este es el único control de música de la invitación: el botón flotante
+// de la esquina quedó desactivado en Invitacion.astro.
+//
+// Medidas del diseño, en % del ancho de la columna:
+//   tarjeta  73.4% de ancho, centrada
+//   flores   27.3% de ancho, pegadas al borde izquierdo, arrancando
+//            un 18% más arriba que la tarjeta
+---
+
+<section id="reproductor" class="seccion">
+    <div class="marco">
+        <!-- Flores de la esquina: van por delante de la tarjeta -->
+        <img
+            src="/imagenes/florlateral.png"
+            alt=""
+            aria-hidden="true"
+            width="440"
+            height="482"
+            class="flores"
+        />
+
+        <div class="tarjeta">
+            <!-- Corazón sobre el extremo derecho de la barra -->
+            <div class="fila-corazon">
+                <svg viewBox="0 0 24 24" class="corazon" aria-hidden="true">
+                    <path
+                        d="M12 21s-7.5-4.7-9.3-9A5.3 5.3 0 0 1 12 6.5 5.3 5.3 0 0 1 21.3 12c-1.8 4.3-9.3 9-9.3 9z"
+                    ></path>
+                </svg>
+            </div>
+
+            <!-- Barra de progreso -->
+            <div id="barra-audio" class="barra">
+                <span class="riel" aria-hidden="true"></span>
+                <span id="barra-progreso" class="avance" style="width: 0%"
+                ></span>
+                <span id="barra-punto" class="punto" style="left: 0%"></span>
+            </div>
+
+            <!-- Tiempos -->
+            <div class="tiempos font-rantera">
+                <span id="tiempo-actual">0:00</span>
+                <span id="tiempo-total">3:17</span>
+            </div>
+
+            <!-- Controles -->
+            <div class="controles">
+                <!-- Aleatorio -->
+                <svg
+                    class="icono chico"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <path d="M16 3h5v5"></path>
+                    <path d="M4 20 21 3"></path>
+                    <path d="M21 16v5h-5"></path>
+                    <path d="M15 15l6 6"></path>
+                    <path d="M4 4l5 5"></path>
+                </svg>
+
+                <!-- Anterior (reinicia la melodía) -->
+                <button
+                    id="audio-inicio"
+                    type="button"
+                    aria-label="Volver al inicio"
+                    class="boton-plano"
+                >
+                    <svg class="icono" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 5h2.2v14H6z"></path>
+                        <path d="M20 5v14L9.5 12z"></path>
+                    </svg>
+                </button>
+
+                <!--
+                   Play / Pausa. El ícono muestra el estado actual: si está
+                   sonando se ve la pausa, y al revés.
+                -->
+                <button
+                    id="audio-toggle"
+                    type="button"
+                    aria-label="Reproducir o pausar"
+                    class="boton-play"
+                >
+                    <svg
+                        id="icono-play"
+                        class="signo corrido"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                    >
+                        <path d="M7 4.5v15L20 12z"></path>
+                    </svg>
+                    <svg
+                        id="icono-pausa"
+                        class="signo oculto"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                    >
+                        <path d="M6 4.5h4v15H6zM14 4.5h4v15h-4z"></path>
+                    </svg>
+                </button>
+
+                <!-- Siguiente (reinicia la melodía) -->
+                <button
+                    id="audio-siguiente"
+                    type="button"
+                    aria-label="Reiniciar melodía"
+                    class="boton-plano"
+                >
+                    <svg class="icono" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 5v14l10.5-7z"></path>
+                        <path d="M15.8 5H18v14h-2.2z"></path>
+                    </svg>
+                </button>
+
+                <!-- Repetir -->
+                <svg
+                    class="icono chico"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <path d="M17 2l4 4-4 4"></path>
+                    <path d="M3 11v-1a4 4 0 0 1 4-4h14"></path>
+                    <path d="M7 22l-4-4 4-4"></path>
+                    <path d="M21 13v1a4 4 0 0 1-4 4H3"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /*
+       La paleta con la que venimos: la tinta oscura de los textos, la
+       crema del papel rasgado y el oro de la llamada de la portada.
+    */
+    #reproductor {
+        --tinta: #3d300d;
+        --crema: #eee9cb;
+        --oro: #b08c46;
+    }
+
+    /* Sin padding lateral: las flores tienen que llegar al borde */
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 0 0 2.5rem;
+    }
+
+    /*
+       El hueco de arriba es para las flores: arrancan un 18% del ancho por
+       encima de la tarjeta y bajan hasta meterse dentro de ella.
+    */
+    .marco {
+        position: relative;
+        width: 100%;
+        padding-top: 15%;
+    }
+
+    .flores {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 27.3%;
+        height: auto;
+        z-index: 2;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 6px 10px rgba(90, 70, 20, 0.18));
+    }
+
+    .tarjeta {
+        position: relative;
+        z-index: 1;
+        width: 73.4%;
+        margin: 0 auto;
+        padding: 1.5rem 1.6rem 1.7rem;
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 12px 28px rgba(90, 65, 25, 0.13);
+    }
+
+    /* ── Barra ─────────────────────────────────────────────── */
+    .fila-corazon {
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 2px;
+        margin-bottom: 0.5rem;
+    }
+
+    .corazon {
+        width: 20px;
+        height: 20px;
+        fill: var(--oro);
+    }
+
+    .barra {
+        position: relative;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .riel {
+        width: 100%;
+        height: 2px;
+        border-radius: 999px;
+        background: rgba(61, 48, 13, 0.22);
+    }
+
+    .avance {
+        position: absolute;
+        left: 0;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--tinta);
+    }
+
+    .punto {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--tinta);
+        transform: translateX(-50%);
+    }
+
+    .tiempos {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.45rem;
+        color: var(--tinta);
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+    }
+
+    /* ── Controles ─────────────────────────────────────────── */
+    .controles {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.4rem;
+        margin-top: 1.4rem;
+        color: var(--tinta);
+    }
+
+    .icono {
+        width: 21px;
+        height: 21px;
+    }
+
+    /* Aleatorio y repetir van más apagados: son secundarios */
+    .chico {
+        width: 19px;
+        height: 19px;
+        opacity: 0.5;
+    }
+
+    .boton-plano {
+        border: 0;
+        padding: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+    }
+
+    /*
+       El play va en un círculo relleno: es el control principal. Va en un
+       café más claro que la tinta de los textos —esa es casi negra y en un
+       botón redondo se veía dura— y con la sombra del mismo tono.
+    */
+    .boton-play {
+        width: 44px;
+        height: 44px;
+        border: 0;
+        border-radius: 999px;
+        background: #9a7343;
+        color: #fffaf0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition:
+            transform 0.25s ease,
+            background-color 0.25s ease;
+        box-shadow: 0 6px 14px rgba(154, 115, 67, 0.32);
+    }
+
+    .boton-play:hover {
+        transform: scale(1.06);
+        background: #ab8250;
+    }
+
+    .signo {
+        width: 17px;
+        height: 17px;
+    }
+
+    /* El triángulo del play se ve descentrado si no se corre un pelo */
+    .corrido {
+        margin-left: 2px;
+    }
+
+    .oculto {
+        display: none;
+    }
+</style>
+
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        /*
+           Las flores entran creciendo desde chiquitas hasta su tamaño y
+           después quedan meciéndose despacio, como si estuvieran vivas.
+        */
+        const flores = document.querySelector<HTMLElement>(
+            "#reproductor .flores",
+        );
+        if (
+            flores &&
+            !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+            gsap.fromTo(
+                flores,
+                { scale: 0.45, x: -70, opacity: 0 },
+                {
+                    scale: 1,
+                    x: 0,
+                    opacity: 1,
+                    duration: 1.5,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: flores,
+                        start: "top 95%",
+                        toggleActions: "play none none reset",
+                    },
+                    onComplete: () => {
+                        gsap.to(flores, {
+                            rotation: 1.6,
+                            duration: 5,
+                            repeat: -1,
+                            yoyo: true,
+                            ease: "sine.inOut",
+                        });
+                    },
+                },
+            );
+        }
+
+        const barra = document.getElementById("barra-audio");
+        const progreso = document.getElementById("barra-progreso");
+        const punto = document.getElementById("barra-punto");
+        const actual = document.getElementById("tiempo-actual");
+        const total = document.getElementById("tiempo-total");
+        const btnToggle = document.getElementById("audio-toggle");
+        const btnInicio = document.getElementById("audio-inicio");
+        const btnSiguiente = document.getElementById("audio-siguiente");
+        const iconoPlay = document.getElementById("icono-play");
+        const iconoPausa = document.getElementById("icono-pausa");
+
+        const RUTA = "/musica/melodia2.mp3";
+
+        const fmt = (s: number) => {
+            if (!isFinite(s)) return "0:00";
+            const m = Math.floor(s / 60);
+            const r = Math.floor(s % 60);
+            return `${m}:${r.toString().padStart(2, "0")}`;
+        };
+
+        // Se ve la pausa cuando suena, y el play cuando está detenida
+        const pintarEstado = (sonando: boolean) => {
+            iconoPlay?.classList.toggle("oculto", sonando);
+            iconoPausa?.classList.toggle("oculto", !sonando);
+        };
+
+        let audio: HTMLAudioElement | null = null;
+
+        const refrescar = () => {
+            if (!audio || !audio.duration) return;
+            const pct = (audio.currentTime / audio.duration) * 100;
+            if (progreso) progreso.style.width = `${pct}%`;
+            if (punto) punto.style.left = `${pct}%`;
+            if (actual) actual.textContent = fmt(audio.currentTime);
+            if (total) total.textContent = fmt(audio.duration);
+        };
+
+        /*
+           Engancha la barra y los tiempos a un audio. Se llama una sola
+           vez por audio: si ya es el que estaba, no vuelve a suscribirse.
+        */
+        const enganchar = (nuevo: HTMLAudioElement) => {
+            if (audio === nuevo) return;
+            audio = nuevo;
+
+            audio.addEventListener("timeupdate", refrescar);
+            audio.addEventListener("loadedmetadata", refrescar);
+            /*
+               El ícono se pinta escuchando al audio y no dentro del click:
+               así también se entera cuando la melodía la cortan desde el
+               botón flotante, y los dos controles no se contradicen.
+            */
+            audio.addEventListener("play", () => pintarEstado(true));
+            audio.addEventListener("pause", () => pintarEstado(false));
+
+            refrescar();
+            pintarEstado(!audio.paused);
+        };
+
+        /*
+           La melodía es una sola para toda la invitación y vive en
+           window.audioGlobal, y la crea este reproductor cuando le dan al
+           play. La portada ya no la arranca sola al abrir el sobre: para
+           eso está esta barra. Como el audio se comparte por
+           window.audioGlobal, nunca suenan dos melodías encimadas.
+        */
+        const obtenerAudio = () => {
+            let compartido = (window as any).audioGlobal as
+                | HTMLAudioElement
+                | undefined;
+
+            if (!compartido) {
+                compartido = new Audio(RUTA);
+                compartido.loop = true;
+                compartido.volume = 0.5;
+                (window as any).audioGlobal = compartido;
+            }
+
+            enganchar(compartido);
+            return compartido;
+        };
+
+        // Si la portada ya lo creó, la barra se engancha enseguida
+        if ((window as any).audioGlobal) {
+            obtenerAudio();
+        } else {
+            const esperar = setInterval(() => {
+                if (!(window as any).audioGlobal) return;
+                clearInterval(esperar);
+                obtenerAudio();
+            }, 300);
+        }
+
+        // ── Los controles ───────────────────────────────────────
+        btnToggle?.addEventListener("click", () => {
+            const a = obtenerAudio();
+            if (a.paused) {
+                a.play().catch((error) => {
+                    console.log("❌ Error al reproducir audio:", error);
+                });
+            } else {
+                a.pause();
+            }
+            (window as any).estaReproduciendoGlobal = !a.paused;
+        });
+
+        const reiniciar = () => {
+            const a = obtenerAudio();
+            a.currentTime = 0;
+            a.play().catch(() => {});
+            (window as any).estaReproduciendoGlobal = true;
+        };
+
+        btnInicio?.addEventListener("click", reiniciar);
+        btnSiguiente?.addEventListener("click", reiniciar);
+
+        // Tocar la barra salta a esa parte de la canción
+        barra?.addEventListener("click", (e) => {
+            const a = obtenerAudio();
+            if (!a.duration) return;
+            const caja = barra.getBoundingClientRect();
+            const pct = (e.clientX - caja.left) / caja.width;
+            a.currentTime = Math.min(Math.max(pct, 0), 1) * a.duration;
+        });
+    });
+</script>

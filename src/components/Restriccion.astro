@@ -1,0 +1,204 @@
+---
+// src/components/Restriccion.astro
+// Tarjeta verde "Solo Adultos" con el sello de lacre montado sobre el
+// borde de arriba y el aviso en Cinzel, con la parte importante en
+// negrita. La misma flor colgante (florabajo.png) pisa dos esquinas:
+// arriba a la izquierda y abajo a la derecha.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Solo Adultos";
+// Los renglones van partidos a mano; "destacado" sale en negrita
+const antes = "Con mucho cariño, les informamos que amamos a los niños, pero";
+const destacado = "la recepción será solo para adultos.";
+const despues = "Gracias por su comprensión";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="restriccion" class="seccion">
+    <div id="tarjeta-restriccion" class="tarjeta">
+        <img
+            src="/imagenes/boton.png"
+            alt=""
+            width="192"
+            height="177"
+            aria-hidden="true"
+            class="sello"
+        />
+
+        <p class="titulo font-great-vibes">{titulo}</p>
+        <p class="texto">
+            {antes} <strong>{destacado}</strong>
+            <span class="gracias">{despues}</span>
+        </p>
+
+        <!-- La misma flor en dos esquinas -->
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-arriba"
+        />
+        <img
+            src="/imagenes/florabajo.png"
+            alt=""
+            width="538"
+            height="1204"
+            aria-hidden="true"
+            class="flor flor-abajo"
+        />
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 14% 0 16%;
+    }
+
+    /* Las letras se miden contra la tarjeta, no contra la pantalla */
+    .tarjeta {
+        container-type: inline-size;
+        position: relative;
+        width: 92%;
+        margin: 0 auto;
+        padding: 15cqw 7cqw 12cqw;
+        text-align: center;
+        color: #f4efe3;
+        /* Como imagen y no como color: el modo oscuro forzado la respeta */
+        background-image:
+            radial-gradient(
+                ellipse at 50% 20%,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(180deg, #4d5c3a 0%, #46553a 100%);
+        box-shadow: 0 10px 24px rgba(40, 50, 28, 0.25);
+    }
+
+    /* El sello se para sobre el borde de arriba, mitad afuera */
+    .sello {
+        position: absolute;
+        z-index: 3;
+        top: -10cqw;
+        /* Centrado sin transform: la animación de entrada usa scale */
+        left: calc(50% - 10.5cqw);
+        width: 21cqw;
+        height: auto;
+        filter: drop-shadow(0 4px 5px rgba(40, 30, 10, 0.4));
+    }
+
+    .titulo {
+        margin: 0;
+        font-size: 13cqw;
+        line-height: 1.1;
+        color: #f7f2e6;
+    }
+
+    .texto {
+        margin: 5cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 4.8cqw;
+        line-height: 1.3;
+        letter-spacing: 0.02em;
+        color: #efe8d6;
+    }
+
+    .texto strong {
+        font-weight: 700;
+        color: #fbf7ee;
+    }
+
+    .gracias {
+        display: block;
+    }
+
+    .flor {
+        position: absolute;
+        z-index: 2;
+        width: 15cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Cuelga desde la esquina de arriba a la izquierda */
+    .flor-arriba {
+        top: -8cqw;
+        left: -5cqw;
+    }
+
+    /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
+    .flor-abajo {
+        right: -5cqw;
+        bottom: -16cqw;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const tarjeta = document.getElementById("tarjeta-restriccion");
+        if (!tarjeta) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: tarjeta,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl.fromTo(
+            tarjeta,
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+        )
+            // El sello cae sobre el borde
+            .fromTo(
+                tarjeta.querySelector(".sello"),
+                { opacity: 0, scale: 1.6 },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    duration: 0.6,
+                    ease: "back.out(2)",
+                },
+                0.5,
+            )
+            .fromTo(
+                tarjeta.querySelectorAll(".titulo, .texto"),
+                { opacity: 0, y: 12 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.9,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                },
+                0.6,
+            )
+            .fromTo(
+                tarjeta.querySelectorAll(".flor"),
+                { opacity: 0, rotate: -8, transformOrigin: "50% 0%" },
+                {
+                    opacity: 1,
+                    rotate: 0,
+                    duration: 1.1,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                },
+                0.5,
+            );
+    });
+</script>

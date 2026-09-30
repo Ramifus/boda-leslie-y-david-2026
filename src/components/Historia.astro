@@ -1,0 +1,743 @@
+---
+// src/components/Historia.astro
+// Franja de papel crema rasgada con el "Historia", la foto de los novios
+// —también rasgada arriba y abajo— y el botón que abre la historia en una
+// ventana sobre la invitación.
+//
+// El texto largo no se muestra de entrada: se lee en el modal. Así la
+// sección queda liviana y quien quiera leerlo lo abre.
+//
+// Medidas del diseño, en % del ancho de la columna:
+//   banda   22% de alto · foto 55% de alto
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Historia";
+const foto = "/imagenes/foto2.webp";
+const textoBoton = "Leer nuestra historia";
+// El gancho va ARRIBA del botón: primero la pregunta, después el botón que
+// la contesta. Y debajo, la instrucción, para que no quede ninguna duda.
+const gancho = "¿Quieres saber cómo nos conocimos?";
+// El anzuelo cuenta apenas lo justo para dar ganas de leer el resto
+const anzuelo = "Todo empezó con un baile y una canción...";
+const pista = "Toca el botón y te lo contamos";
+
+const tituloModal = "Nuestra Historia";
+
+const historia = [
+    "Un 21 de abril de 2023, tuvimos la oportunidad de bailar juntos. Ambos éramos pasantes y, al compás de una melodía clásica que a los dos nos encantaba, sentimos una conexión intensa, como si el mundo se detuviera por un instante. Desde ese día, nuestras risas y charlas comenzaron a tejer un lazo invisible entre nosotros. Pasaron meses, seguimos caminos distintos, pero el destino nos volvió a reunir.",
+    "El 7 de agosto de 2023, en un mirador donde la ciudad brillaba como un mar de luces. Con un pequeño peluche chancho en sus manos, símbolo de ternura y de cuánto me conoce, me pidió ser su novia. No dudé ni un segundo: lo miré a los ojos y dije que sí. Desde ese día, nuestro amor creció, acompañado por la calidez de su familia que me acogió como parte de ellos.",
+    "Cada 21 de septiembre volvemos al lago, a nuestro refugio. Pero este 21 de septiembre de 2025 fue diferente. Frente al agua tranquila, me pidió un paso más: comprometernos para toda la vida. Volví a decir que sí, con la misma certeza de la primera vez, segura de que siempre fue él.",
+    "Ese compromiso no es solo un anillo ni una promesa; es el inicio de una nueva etapa que queremos recorrer juntos. Él es mi refugio, mi destino, mi hogar. Este 21 de septiembre marcó el comienzo de nuestra historia más grande: la de dos almas que decidieron caminar juntas, con la certeza de que nuestro amor siempre encontrará su camino, hoy y siempre.",
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="historia" class="seccion">
+    <div id="banda-historia" class="banda">
+        <h2 class="titulo font-elegant">{titulo}</h2>
+    </div>
+
+    <!-- La foto va a sangre y rasgada por arriba y por abajo -->
+    <img
+        id="foto-historia"
+        src={foto}
+        alt="Sebastián y Adriana tomados de la mano al atardecer"
+        width="1280"
+        height="853"
+        class="foto"
+    />
+
+    <div id="pie-historia" class="pie">
+        <p class="gancho font-elegant">{gancho}</p>
+        <p class="anzuelo font-cormorant">{anzuelo}</p>
+
+        <!--
+           La flecha baja del texto al botón: primero la pregunta, después
+           el camino, y al final lo que hay que tocar.
+        -->
+        <span class="flecha" aria-hidden="true">
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="M12 4v13"></path>
+                <path d="M6 12l6 6 6-6"></path>
+            </svg>
+        </span>
+
+        <button id="abrir-historia" type="button" class="boton font-cormorant">
+            <svg
+                class="icono-libro"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+            >
+                <path d="M12 7c-1.8-1.6-4-2.2-6.5-2.2H3v13h2.5c2.5 0 4.7.6 6.5 2.2"
+                ></path>
+                <path d="M12 7c1.8-1.6 4-2.2 6.5-2.2H21v13h-2.5c-2.5 0-4.7.6-6.5 2.2"
+                ></path>
+                <path d="M12 7v13"></path>
+            </svg>
+            <span>{textoBoton}</span>
+        </button>
+
+        <p class="pista font-cormorant">{pista}</p>
+    </div>
+
+    <!--
+       La ventana con la historia. Va en un <dialog>: así el navegador se
+       encarga del fondo oscuro, del foco y de cerrarla con Escape, sin
+       tener que escribir nada de eso a mano.
+    -->
+    <dialog id="modal-historia" class="modal">
+        <div class="hoja">
+            <button
+                id="cerrar-historia"
+                type="button"
+                class="cerrar"
+                aria-label="Cerrar"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                >
+                    <path d="M6 6l12 12M18 6L6 18"></path>
+                </svg>
+            </button>
+
+            <!-- Solo esta parte scrollea; la hoja y sus flores no -->
+            <div class="contenido">
+                <h3 class="titulo-modal font-elegant">{tituloModal}</h3>
+
+                <div class="relato font-cormorant">
+                    {historia.map((parrafo) => <p>{parrafo}</p>)}
+                </div>
+            </div>
+        </div>
+    </dialog>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 0 0 3.5rem;
+    }
+
+    /*
+       La banda de papel: el mismo rasgado del modelo, con el trazo corrido
+       (17 arriba y 39 abajo) para que no repita el de las otras franjas.
+    */
+    .banda {
+        position: relative;
+        width: 100%;
+        background: #f7f3d3;
+        padding: 2.6rem 1.8rem 2.8rem;
+        clip-path: polygon(
+            0.00% 2.14%,
+            1.82% 1.75%,
+            3.64% 2.50%,
+            5.45% 3.40%,
+            7.27% 5.33%,
+            9.09% 4.30%,
+            10.91% 5.93%,
+            12.73% 6.47%,
+            14.55% 6.21%,
+            16.36% 4.14%,
+            18.18% 5.07%,
+            20.00% 5.17%,
+            21.82% 6.42%,
+            23.64% 5.33%,
+            25.45% 5.17%,
+            27.27% 4.87%,
+            29.09% 3.99%,
+            30.91% 2.21%,
+            32.73% 2.09%,
+            34.55% 0.51%,
+            36.36% 1.63%,
+            38.18% 2.75%,
+            40.00% 2.97%,
+            41.82% 4.20%,
+            43.64% 6.82%,
+            45.45% 5.66%,
+            47.27% 5.36%,
+            49.09% 3.60%,
+            50.91% 3.56%,
+            52.73% 4.10%,
+            54.55% 3.27%,
+            56.36% 2.37%,
+            58.18% 4.14%,
+            60.00% 6.65%,
+            61.82% 5.79%,
+            63.64% 3.84%,
+            65.45% 6.00%,
+            67.27% 4.95%,
+            69.09% 5.64%,
+            70.91% 8.50%,
+            72.73% 4.15%,
+            74.55% 4.00%,
+            76.36% 4.25%,
+            78.18% 6.51%,
+            80.00% 5.98%,
+            81.82% 6.16%,
+            83.64% 5.56%,
+            85.45% 4.89%,
+            87.27% 6.00%,
+            89.09% 6.46%,
+            90.91% 6.49%,
+            92.73% 6.36%,
+            94.55% 4.33%,
+            96.36% 7.05%,
+            98.18% 5.69%,
+            100.00% 3.71%,
+            100.00% 97.25%,
+            98.18% 98.37%,
+            96.36% 99.49%,
+            94.55% 97.91%,
+            92.73% 97.79%,
+            90.91% 96.01%,
+            89.09% 95.13%,
+            87.27% 94.83%,
+            85.45% 94.67%,
+            83.64% 93.58%,
+            81.82% 94.83%,
+            80.00% 94.93%,
+            78.18% 95.86%,
+            76.36% 93.79%,
+            74.55% 93.53%,
+            72.73% 94.07%,
+            70.91% 95.70%,
+            69.09% 94.67%,
+            67.27% 96.60%,
+            65.45% 97.50%,
+            63.64% 98.25%,
+            61.82% 97.86%,
+            60.00% 96.29%,
+            58.18% 94.31%,
+            56.36% 92.95%,
+            54.55% 95.67%,
+            52.73% 93.64%,
+            50.91% 93.51%,
+            49.09% 93.54%,
+            47.27% 94.00%,
+            45.45% 95.11%,
+            43.64% 94.44%,
+            41.82% 93.84%,
+            40.00% 94.02%,
+            38.18% 93.49%,
+            36.36% 95.75%,
+            34.55% 96.00%,
+            32.73% 95.85%,
+            30.91% 91.50%,
+            29.09% 94.36%,
+            27.27% 95.05%,
+            25.45% 94.00%,
+            23.64% 96.16%,
+            21.82% 94.21%,
+            20.00% 93.35%,
+            18.18% 95.86%,
+            16.36% 97.63%,
+            14.55% 96.73%,
+            12.73% 95.90%,
+            10.91% 96.44%,
+            9.09% 96.40%,
+            7.27% 94.64%,
+            5.45% 94.34%,
+            3.64% 93.18%,
+            1.82% 95.80%,
+            0.00% 97.03%
+        );
+    }
+
+    /* Mismo tamaño y color que los otros títulos de la invitación */
+    .titulo {
+        margin: 0 auto;
+        text-align: center;
+        color: #643e1a;
+        font-size: clamp(2.35rem, 10.7vw, 2.9rem);
+        line-height: 1.2;
+    }
+
+    /*
+       La foto, a sangre y con su propio rasgado. El de arriba es más
+       suave (5%) que el de las bandas: al ser una imagen alta, un mordisco
+       grande se comería parte de la escena.
+    */
+    .foto {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin-top: -1.5rem;
+        user-select: none;
+        clip-path: polygon(
+            0.00% 1.39%,
+            1.82% 2.43%,
+            3.64% 3.91%,
+            5.45% 3.40%,
+            7.27% 2.26%,
+            9.09% 3.53%,
+            10.91% 2.91%,
+            12.73% 3.32%,
+            14.55% 5.00%,
+            16.36% 2.44%,
+            18.18% 2.36%,
+            20.00% 2.50%,
+            21.82% 3.83%,
+            23.64% 3.52%,
+            25.45% 3.63%,
+            27.27% 3.27%,
+            29.09% 2.87%,
+            30.91% 3.53%,
+            32.73% 3.80%,
+            34.55% 3.82%,
+            36.36% 3.74%,
+            38.18% 2.55%,
+            40.00% 4.14%,
+            41.82% 3.35%,
+            43.64% 2.18%,
+            45.45% 1.26%,
+            47.27% 1.03%,
+            49.09% 1.47%,
+            50.91% 2.00%,
+            52.73% 3.13%,
+            54.55% 2.53%,
+            56.36% 3.49%,
+            58.18% 3.81%,
+            60.00% 3.65%,
+            61.82% 2.43%,
+            63.64% 2.98%,
+            65.45% 3.04%,
+            67.27% 3.78%,
+            69.09% 3.13%,
+            70.91% 3.04%,
+            72.73% 2.87%,
+            74.55% 2.35%,
+            76.36% 1.30%,
+            78.18% 1.23%,
+            80.00% 0.30%,
+            81.82% 0.96%,
+            83.64% 1.62%,
+            85.45% 1.75%,
+            87.27% 2.47%,
+            89.09% 4.01%,
+            90.91% 3.33%,
+            92.73% 3.15%,
+            94.55% 2.12%,
+            96.36% 2.10%,
+            98.18% 2.41%,
+            100.00% 1.92%,
+            100.00% 96.20%,
+            98.18% 96.47%,
+            96.36% 97.13%,
+            94.55% 96.73%,
+            92.73% 96.38%,
+            90.91% 96.48%,
+            89.09% 96.17%,
+            87.27% 97.50%,
+            85.45% 97.64%,
+            83.64% 97.56%,
+            81.82% 95.00%,
+            80.00% 96.68%,
+            78.18% 97.09%,
+            76.36% 96.47%,
+            74.55% 97.74%,
+            72.73% 96.60%,
+            70.91% 96.09%,
+            69.09% 97.57%,
+            67.27% 98.61%,
+            65.45% 98.08%,
+            63.64% 97.59%,
+            61.82% 97.90%,
+            60.00% 97.88%,
+            58.18% 96.85%,
+            56.36% 96.67%,
+            54.55% 95.99%,
+            52.73% 97.53%,
+            50.91% 98.25%,
+            49.09% 98.38%,
+            47.27% 99.04%,
+            45.45% 99.70%,
+            43.64% 98.77%,
+            41.82% 98.70%,
+            40.00% 97.65%,
+            38.18% 97.13%,
+            36.36% 96.96%,
+            34.55% 96.87%,
+            32.73% 96.22%,
+            30.91% 96.96%,
+            29.09% 97.02%,
+            27.27% 97.57%,
+            25.45% 96.35%,
+            23.64% 96.19%,
+            21.82% 96.51%,
+            20.00% 97.47%,
+            18.18% 96.87%,
+            16.36% 98.00%,
+            14.55% 98.53%,
+            12.73% 98.97%,
+            10.91% 98.74%,
+            9.09% 97.82%,
+            7.27% 96.65%,
+            5.45% 95.86%,
+            3.64% 97.45%,
+            1.82% 96.26%,
+            0.00% 96.18%
+        );
+    }
+
+    /* ── El pie ────────────────────────────────────────────── */
+    .pie {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1.2rem 0;
+        text-align: center;
+    }
+
+    /*
+       La flecha que baja del texto al botón. Se hunde y vuelve: el ojo
+       sigue el movimiento y termina justo donde hay que tocar.
+    */
+    .flecha {
+        display: flex;
+        margin: 0.5rem 0 0.7rem;
+        color: #8a5a28;
+        animation: bajar 1.6s ease-in-out infinite;
+    }
+
+    .flecha svg {
+        width: clamp(1.5rem, 6.4vw, 1.8rem);
+        height: clamp(1.5rem, 6.4vw, 1.8rem);
+    }
+
+    @keyframes bajar {
+        0%,
+        100% {
+            transform: translateY(0);
+            opacity: 0.75;
+        }
+        50% {
+            transform: translateY(7px);
+            opacity: 1;
+        }
+    }
+
+    /*
+       El mismo botón que el de la ceremonia —crema, versales, Cormorant—
+       pero con las señales del de regalos: ícono, latido y la pista de
+       abajo. Sin eso, un rectángulo quieto no se lee como algo para tocar.
+    */
+    .boton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.6rem;
+        border: 0;
+        cursor: pointer;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        white-space: nowrap;
+        color: #643e1a;
+        background: #fbf5de;
+        border-radius: 999px;
+        font-size: clamp(1.05rem, 4.4vw, 1.2rem);
+        line-height: 1.4;
+        box-shadow: 0 5px 14px rgba(90, 65, 25, 0.16);
+        animation: latido 2.6s ease-in-out infinite;
+        transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            background-color 0.25s ease;
+    }
+
+    @keyframes latido {
+        0%,
+        100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.045);
+        }
+    }
+
+    .icono-libro {
+        width: 1.15em;
+        height: 1.15em;
+        flex-shrink: 0;
+    }
+
+    .boton:hover {
+        background: #fff9e8;
+        box-shadow: 0 9px 20px rgba(90, 65, 25, 0.24);
+    }
+
+    /* Se hunde al tocarlo: la señal de que respondió */
+    .boton:active {
+        animation: none;
+        transform: scale(0.97);
+        box-shadow: 0 2px 6px rgba(90, 65, 25, 0.2);
+    }
+
+    /*
+       La pregunta va en la caligrafía y grande: es la que engancha, así
+       que tiene más peso que el propio botón.
+    */
+    .gancho {
+        color: #643e1a;
+        font-size: clamp(1.85rem, 8.4vw, 2.3rem);
+        line-height: 1.35;
+    }
+
+    /* Un renglón chico y en itálica: se lee como un secreto a medias */
+    .anzuelo {
+        margin-top: 0.4rem;
+        color: #8a5a28;
+        font-style: italic;
+        font-size: clamp(1.05rem, 4.6vw, 1.2rem);
+        line-height: 1.4;
+    }
+
+    .pista {
+        margin-top: 0.6rem;
+        color: #643e1a;
+        font-size: clamp(1.05rem, 4.6vw, 1.2rem);
+        line-height: 1.4;
+    }
+
+    /* ── La ventana de la historia ─────────────────────────── */
+    /*
+       inset 0 + margin auto es lo que la centra. El navegador ya lo hace
+       por su cuenta con showModal(), pero dejarlo escrito evita que se
+       vaya a una esquina si algún estilo de arriba le pisa el margen.
+    */
+    .modal {
+        position: fixed;
+        inset: 0;
+        margin: auto;
+        width: min(92vw, 26rem);
+        max-height: 86vh;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        overflow: visible;
+    }
+
+    .modal::backdrop {
+        background: rgba(60, 40, 15, 0.55);
+        backdrop-filter: blur(2px);
+    }
+
+    /* La hoja de papel: el mismo fondo y los mismos colores de la invitación */
+    .hoja {
+        position: relative;
+        max-height: 86vh;
+        overflow: hidden;
+        background: #f7f3d3;
+        border-radius: 12px;
+        box-shadow: 0 18px 40px rgba(40, 25, 10, 0.35);
+    }
+
+    /*
+       Lo único que scrollea es el texto. overscroll-behavior: contain
+       corta el "encadenado": al llegar al final del relato, la rueda deja
+       de pasarle el movimiento a la página de atrás.
+    */
+    .contenido {
+        position: relative;
+        z-index: 1;
+        max-height: 86vh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 2.2rem 1.6rem 2.4rem;
+    }
+
+
+    /*
+       z-index 2 y no auto: el bloque del texto va con z-index 1 y le
+       quedaba encima, así que se comía los clics de la X y la ventana no
+       cerraba por más que el botón estuviera a la vista.
+    */
+    .cerrar {
+        position: absolute;
+        z-index: 2;
+        top: 0.7rem;
+        right: 0.7rem;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        cursor: pointer;
+        color: #643e1a;
+        background: rgba(100, 62, 26, 0.1);
+        transition: background-color 0.25s ease;
+    }
+
+    .cerrar svg {
+        width: 1.05rem;
+        height: 1.05rem;
+    }
+
+    .cerrar:hover {
+        background: rgba(100, 62, 26, 0.2);
+    }
+
+    .titulo-modal {
+        margin-bottom: 1.2rem;
+        text-align: center;
+        color: #643e1a;
+        font-size: clamp(1.6rem, 7.4vw, 2rem);
+        line-height: 1.2;
+    }
+
+    .relato {
+        color: #643e1a;
+        font-size: clamp(1.05rem, 4.4vw, 1.15rem);
+        line-height: 1.7;
+        text-align: justify;
+    }
+
+    /* El aire entre párrafos, no antes del primero */
+    .relato p + p {
+        margin-top: 1rem;
+    }
+
+    /* Quien pide menos movimiento no ve ni el latido ni la flecha bajar */
+    @media (prefers-reduced-motion: reduce) {
+        .boton,
+        .flecha {
+            animation: none;
+        }
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // ── La ventana ──────────────────────────────────────────
+        const modal = document.getElementById(
+            "modal-historia",
+        ) as HTMLDialogElement | null;
+        const abrir = document.getElementById("abrir-historia");
+        const cerrar = document.getElementById("cerrar-historia");
+
+        /*
+           Mientras la ventana está abierta se traba el scroll de la
+           página: el navegador no lo hace solo.
+
+           Y se traba en el <html>, no solo en el <body>: el layout le
+           puso overflow-x: hidden al html, y con eso deja de valer la
+           regla por la que el overflow del body gobierna la ventana. Si
+           solo se tocara el body, la página seguiría corriéndose detrás.
+        */
+        const raiz = document.documentElement;
+
+        abrir?.addEventListener("click", () => {
+            modal?.showModal();
+            raiz.style.overflow = "hidden";
+            document.body.style.overflow = "hidden";
+        });
+
+        const cerrarVentana = () => {
+            modal?.close();
+        };
+
+        cerrar?.addEventListener("click", cerrarVentana);
+
+        // Clic afuera de la hoja: también cierra
+        modal?.addEventListener("click", (e) => {
+            if (e.target === modal) cerrarVentana();
+        });
+
+        // Un solo lugar donde se devuelve el scroll: así también vale
+        // cuando se cierra con la tecla Escape.
+        modal?.addEventListener("close", () => {
+            raiz.style.overflow = "";
+            document.body.style.overflow = "";
+        });
+
+        // ── Entrada ─────────────────────────────────────────────
+        const banda = document.getElementById("banda-historia");
+        const foto = document.getElementById("foto-historia");
+        const pie = document.getElementById("pie-historia");
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        if (banda) {
+            gsap.fromTo(
+                banda.querySelector(".titulo"),
+                { opacity: 0, y: 16 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: banda,
+                        start: "top 85%",
+                        toggleActions: "play none none reset",
+                    },
+                },
+            );
+        }
+
+        // La foto arranca ampliada y se acomoda, como en Foto1
+        if (foto) {
+            gsap.fromTo(
+                foto,
+                { scale: 1.12 },
+                {
+                    scale: 1,
+                    duration: 2.2,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: foto,
+                        start: "top 88%",
+                        toggleActions: "play none none reset",
+                    },
+                },
+            );
+        }
+
+        if (pie) {
+            gsap.fromTo(
+                pie.children,
+                { opacity: 0, y: 16 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.7,
+                    stagger: 0.14,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: pie,
+                        start: "top 90%",
+                        toggleActions: "play none none reset",
+                    },
+                },
+            );
+        }
+    });
+</script>

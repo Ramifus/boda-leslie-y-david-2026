@@ -1,0 +1,255 @@
+---
+// src/components/CodigoVestimenta.astro
+// "Dress Code" en Great Vibes bordó, la etiqueta y la indicación en
+// Cinzel, la pareja vestida de gala (codigo.png), el separador dorado y
+// el título de los colores sugeridos.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Dress Code";
+const etiqueta = "Etiqueta Formal";
+const indicacion = "Vestido largo para las damas y traje para los caballeros";
+const tituloColores = "Colores Sugeridos";
+const textoColores =
+    "Les invitamos a vestir en una paleta de tonos tierra y naturales, como borgoña, terracota, oliva dorado, verde oliva y verde musgo";
+// Un arco por color, en el mismo orden que el texto de arriba
+const colores = [
+    { nombre: "Borgoña", hex: "#4e1520" },
+    { nombre: "Terracota", hex: "#8c2f2e" },
+    { nombre: "Oliva dorado", hex: "#8b7a36" },
+    { nombre: "Verde oliva", hex: "#4f5b34" },
+    { nombre: "Verde musgo", hex: "#33351f" },
+];
+const avisoDamas =
+    "Para las damas les pedimos amablemente evitar el uso de prendas en color blanco, ivory y sus gamas";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="codigo-vestimenta" class="seccion">
+    <p class="titulo font-great-vibes">{titulo}</p>
+    <p class="etiqueta">{etiqueta}</p>
+    <p class="indicacion">{indicacion}</p>
+
+    <img
+        src="/imagenes/codigo.png"
+        alt="Pareja vestida de gala: ella con vestido largo, él de traje"
+        width="579"
+        height="991"
+        class="pareja"
+    />
+
+    <img
+        src="/imagenes/separador.png"
+        alt=""
+        width="963"
+        height="64"
+        aria-hidden="true"
+        class="separador"
+    />
+
+    <p class="titulo titulo-colores font-great-vibes">{tituloColores}</p>
+    <p class="texto-colores">{textoColores}</p>
+
+    <div class="paleta">
+        {
+            colores.map((c) => (
+                <span
+                    class="arco"
+                    style={`background-image: linear-gradient(${c.hex}, ${c.hex});`}
+                    title={c.nombre}
+                    aria-label={c.nombre}
+                    role="img"
+                />
+            ))
+        }
+    </div>
+
+    <p class="aviso-damas">{avisoDamas}</p>
+</section>
+
+<style>
+    .seccion {
+        /* Las letras se miden contra el ancho de la sección */
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 8cqw 6cqw 10cqw;
+        text-align: center;
+    }
+
+    .titulo {
+        margin: 0;
+        color: #7a2335;
+        font-size: 13cqw;
+        line-height: 1.15;
+    }
+
+    .etiqueta {
+        margin: 0.6cqw 0 0;
+        font-family: "Cinzel", serif;
+        font-size: 5cqw;
+        letter-spacing: 0.03em;
+        color: #6e5a52;
+    }
+
+    .indicacion {
+        margin: 3.6cqw auto 0;
+        max-width: 96%;
+        font-family: "Cinzel", serif;
+        font-size: 4.6cqw;
+        line-height: 1.3;
+        letter-spacing: 0.02em;
+        color: #7a2335;
+    }
+
+    .pareja {
+        display: block;
+        width: 30cqw;
+        height: auto;
+        margin: 6cqw auto 0;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .separador {
+        display: block;
+        width: 72cqw;
+        height: auto;
+        margin: 6cqw auto 0;
+        opacity: 0.9;
+    }
+
+    .titulo-colores {
+        margin-top: 5cqw;
+        font-size: 11cqw;
+    }
+
+    .texto-colores,
+    .aviso-damas {
+        margin: 3cqw auto 0;
+        max-width: 96%;
+        font-family: "Cinzel", serif;
+        font-size: 4.4cqw;
+        line-height: 1.3;
+        letter-spacing: 0.02em;
+        color: #7a2335;
+    }
+
+    /* Arcos: redondos arriba y rectos abajo, como en el diseño */
+    .paleta {
+        display: flex;
+        justify-content: center;
+        gap: 4cqw;
+        margin-top: 7cqw;
+    }
+
+    .arco {
+        display: block;
+        width: 12cqw;
+        height: 13cqw;
+        border-radius: 6cqw 6cqw 0.6cqw 0.6cqw;
+        box-shadow: 0 3px 8px rgba(40, 20, 20, 0.2);
+    }
+
+    .aviso-damas {
+        margin-top: 7cqw;
+        color: #5e2a2f;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const seccion = document.getElementById("codigo-vestimenta");
+        if (!seccion) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const textos = seccion.querySelectorAll(
+            ".titulo:not(.titulo-colores), .etiqueta, .indicacion",
+        );
+        const pareja = seccion.querySelector(".pareja");
+        const separador = seccion.querySelector(".separador");
+        const colores = seccion.querySelector(".titulo-colores");
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 80%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        tl.fromTo(
+            textos,
+            { opacity: 0, y: 14 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.9,
+                stagger: 0.18,
+                ease: "power2.out",
+            },
+        )
+            .fromTo(
+                pareja,
+                { opacity: 0, y: 24 },
+                { opacity: 1, y: 0, duration: 1.1, ease: "power3.out" },
+                0.5,
+            )
+            // El separador se abre desde el centro
+            .fromTo(
+                separador,
+                { opacity: 0, scaleX: 0.2 },
+                { opacity: 0.9, scaleX: 1, duration: 0.9, ease: "power2.out" },
+                1.1,
+            )
+            .fromTo(
+                colores,
+                { opacity: 0, y: 12 },
+                { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                1.4,
+            );
+
+        // La paleta tiene su propio disparador: queda más abajo y con uno
+        // solo ya habría terminado de animarse antes de llegar a verla.
+        const paleta = seccion.querySelector(".paleta");
+        if (paleta) {
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: paleta,
+                    start: "top 88%",
+                    toggleActions: "play none none reset",
+                },
+            })
+                .fromTo(
+                    seccion.querySelector(".texto-colores"),
+                    { opacity: 0, y: 12 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                )
+                .fromTo(
+                    paleta.querySelectorAll(".arco"),
+                    { opacity: 0, y: 16, scale: 0.9 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 0.6,
+                        stagger: 0.1,
+                        ease: "back.out(1.6)",
+                    },
+                    0.3,
+                )
+                .fromTo(
+                    seccion.querySelector(".aviso-damas"),
+                    { opacity: 0, y: 12 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                    0.8,
+                );
+        }
+    });
+</script>
