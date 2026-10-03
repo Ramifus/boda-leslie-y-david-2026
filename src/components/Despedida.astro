@@ -18,25 +18,31 @@ export interface Props {
 }
 const { pases = 0 } = Astro.props;
 
+import { enlaceConfirmar } from "../scripts/mensajeConfirmar";
+
 // ── DATOS EDITABLES ───────────────────────────────────────────
 const titulo = "Confirmar Asistencia";
 const pedido = ["Por favor confirma antes del", "10 de septiembre"];
 const frase = "Será un honor contar con tu presencia";
 const esperamos = "¡Te esperamos!";
-const textoBoton = "Confirmar";
-const novios = "Leslie & David";
+const novios = "David & Leslie";
 // El sobre con flores, monograma y sello (el mismo de la portada)
 const sobre = "/imagenes/sobre.png";
 
 /*
-   El botón abre WhatsApp con el mensaje ya escrito. El número va con el
-   código de país y sin el + ni espacios, que es como lo pide wa.me.
+   El botón abre WhatsApp con el mensaje ya escrito, y el nombre que el
+   invitado ponga en la casilla va adentro. El texto se arma en
+   src/scripts/mensajeConfirmar.ts. El número va con el código de país y
+   sin el + ni espacios, que es como lo pide wa.me.
 */
-const telefono = "59161006490";
-const nombresMensaje = "Leslie y David";
-const fechaBoda = "19 de diciembre de 2026";
-const mensaje = `Me complace confirmar mi asistencia a la boda de ${nombresMensaje}, el ${fechaBoda}.`;
-const enlaceConfirmar = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+const noviosMensaje = "David y Leslie";
+const fecha = "19 de diciembre de 2026";
+// Un botón por número: el invitado elige a quién le confirma
+const contactos = [
+    { texto: "Confirmar asistencia", telefono: "59169110899" },
+    { texto: "Confirmar con el novio", telefono: "59170239577" },
+];
+const placeholderNombre = "Escribe tu nombre";
 
 /*
    El pase se arma solo con el número que llega por props: 1 da "Pase para
@@ -87,12 +93,39 @@ const pase =
             <p class="t-frase">{frase}</p>
             <p class="t-esperamos font-great-vibes">{esperamos}</p>
             {pase && <p class="t-pase">{pase}</p>}
-            <a
-                class="boton"
-                href={enlaceConfirmar}
-                target="_blank"
-                rel="noopener noreferrer">{textoBoton}</a
-            >
+            <label class="t-nombre">
+                <span class="t-nombre-check" aria-hidden="true">✓</span>
+                <input
+                    id="confirmar-nombre"
+                    type="text"
+                    name="nombre"
+                    autocomplete="name"
+                    placeholder={placeholderNombre}
+                    aria-label="Tu nombre"
+                />
+            </label>
+            <div class="botones">
+                {
+                    contactos.map((c) => {
+                        const datos = {
+                            telefono: c.telefono,
+                            novios: noviosMensaje,
+                            fecha,
+                        };
+                        return (
+                            <a
+                                class="boton"
+                                href={enlaceConfirmar(datos)}
+                                data-confirmar={JSON.stringify(datos)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                {c.texto}
+                            </a>
+                        );
+                    })
+                }
+            </div>
 
             <!-- Flor colgando en la esquina de abajo a la derecha -->
             <img
@@ -233,18 +266,97 @@ const pase =
         color: #efe8d6;
     }
 
-    .boton {
-        display: inline-block;
+    /* Casilla del nombre: una línea crema sobre el bordó, con el ✓ */
+    .t-nombre {
+        display: flex;
+        align-items: center;
+        gap: 2cqw;
+        width: 78%;
         margin-top: 5cqw;
-        padding: 1.4cqw 5.6cqw;
+        padding: 0 1cqw 1.4cqw;
+        border-bottom: 1px solid rgba(239, 232, 214, 0.6);
+    }
+
+    .t-nombre-check {
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 5.4cqw;
+        height: 5.4cqw;
+        border-radius: 50%;
+        font-size: 3.4cqw;
+        line-height: 1;
+        color: #7a2335;
+        background-image: linear-gradient(#efe8d6, #efe8d6);
+    }
+
+    .t-nombre input {
+        flex: 1;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        outline: none;
+        background: transparent;
+        font-family: "Cormorant Garamond", serif;
+        font-style: italic;
+        /* 16px como mínimo: con menos, el iPhone hace zoom al escribir */
+        font-size: max(16px, 4.8cqw);
+        color: #f4efe3;
+        text-align: center;
+    }
+
+    .t-nombre input::placeholder {
+        color: rgba(244, 239, 227, 0.6);
+    }
+
+    /* Aviso suave si tocan Confirmar sin nombre */
+    .t-nombre.falta {
+        border-bottom-color: #f2d58a;
+    }
+
+    .botones {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3cqw;
+        margin-top: 5cqw;
+    }
+
+    /* Dorado champán sobre el bordó, con un hilo claro adentro. Todos
+       del mismo ancho y siempre en un solo renglón */
+    .boton {
+        display: block;
+        width: 72cqw;
+        box-sizing: border-box;
+        padding: 2.4cqw 4cqw;
         border-radius: 999px;
         font-family: "Cinzel", serif;
-        font-size: 4.4cqw;
-        letter-spacing: 0.04em;
+        font-weight: 600;
+        font-size: 3.8cqw;
+        line-height: 1;
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+        text-align: center;
         text-decoration: none;
-        color: #7a2335;
-        background-image: linear-gradient(#f6f1e8, #f6f1e8);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        color: #6f1f30;
+        background-image: linear-gradient(
+            180deg,
+            #f3e3bd 0%,
+            #e3c88c 55%,
+            #d2b06a 100%
+        );
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 250, 235, 0.7),
+            0 4px 12px rgba(40, 8, 15, 0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .boton:active {
+        transform: scale(0.97);
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 250, 235, 0.7),
+            0 2px 6px rgba(40, 8, 15, 0.3);
     }
 
     /* Cuelga desde la esquina de abajo a la derecha, pisando el borde */
@@ -270,8 +382,53 @@ const pase =
 <script>
     import { gsap } from "gsap";
     import { ScrollTrigger } from "gsap/ScrollTrigger";
+    import {
+        enlaceConfirmar,
+        type DatosConfirmar,
+    } from "../scripts/mensajeConfirmar";
 
     gsap.registerPlugin(ScrollTrigger);
+
+    // El nombre del invitado entra en el mensaje. Va aparte de las
+    // animaciones: tiene que andar aunque el visitante pida menos movimiento.
+    document.addEventListener("DOMContentLoaded", () => {
+        const input = document.getElementById(
+            "confirmar-nombre",
+        ) as HTMLInputElement | null;
+        const botones = Array.from(
+            document.querySelectorAll<HTMLAnchorElement>(
+                "#despedida .boton[data-confirmar]",
+            ),
+        );
+        if (!input || botones.length === 0) return;
+
+        const casilla = input.closest(".t-nombre");
+
+        input.addEventListener("input", () => {
+            botones.forEach((boton) => {
+                const datos: DatosConfirmar = JSON.parse(
+                    boton.dataset.confirmar!,
+                );
+                boton.href = enlaceConfirmar(datos, input.value);
+            });
+            if (input.value.trim()) casilla?.classList.remove("falta");
+        });
+
+        // Sin nombre no sale: se marca la casilla y se lo pide
+        botones.forEach((boton) => {
+            boton.addEventListener("click", (e) => {
+                if (input.value.trim()) return;
+                e.preventDefault();
+                casilla?.classList.add("falta");
+                input.focus();
+                gsap.fromTo(
+                    casilla,
+                    { x: -6 },
+                    { x: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" },
+                );
+            });
+        });
+    });
 
     document.addEventListener("DOMContentLoaded", () => {
         const seccion = document.getElementById("despedida");

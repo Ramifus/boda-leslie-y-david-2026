@@ -5,10 +5,10 @@
 // renglones y la fecha entre rayitas.
 
 // ── DATOS EDITABLES ───────────────────────────────────────────
-const foto = "/imagenes/foto1.png";
-const alt = "Leslie y David juntos";
-const novio = "Leslie &";
-const novia = "David";
+const foto = "/imagenes/foto2.jpeg";
+const alt = "David y Leslie juntos";
+const novio = "David";
+const novia = "Leslie";
 const fechaMes = "dic";
 const fechaDia = "19";
 const fechaAnio = "2026";
@@ -24,7 +24,7 @@ const fechaAnio = "2026";
     <!-- Nombres y fecha, montados sobre el fundido -->
     <div id="nf-texto" class="texto">
         <p class="nombres font-great-vibes">
-            <span>{novio}</span>
+            <span>{novio} <em class="amp">&</em></span>
             <span>{novia}</span>
         </p>
         <p class="fecha">
@@ -50,7 +50,7 @@ const fechaAnio = "2026";
         width: 100%;
         overflow: hidden;
         /* Blanco como el resto de la página: con crema se notaba el corte */
-        background-image: linear-gradient(#ffffff, #ffffff);
+        background-image: linear-gradient(#f5efe7, #f5efe7);
         padding-bottom: 9cqw;
     }
 
@@ -93,12 +93,20 @@ const fechaAnio = "2026";
     .nombres {
         margin: 0;
         color: #7a2335;
-        font-size: 17cqw;
+        font-size: 14cqw;
+        /* Los dos nombres en un solo renglón */
+        white-space: nowrap;
         line-height: 1.12;
     }
 
     .nombres span {
-        display: block;
+        display: inline-block;
+    }
+
+    /* El "&" más chico que los nombres: a tamaño completo pesaba demasiado */
+    .amp {
+        font-style: normal;
+        font-size: 0.7em;
     }
 
     .fecha {

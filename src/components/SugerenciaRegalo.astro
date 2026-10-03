@@ -1,53 +1,78 @@
 ---
 // src/components/SugerenciaRegalo.astro
-// "Sugerencia de Regalo" en Great Vibes bordó, el aviso en Cinzel y las
-// dos opciones con su dibujo de línea: lluvia de sobres (sobre2.png) y
-// mesa de regalos (regalo.png), con el botón para ver la mesa.
+// "Sugerencia de regalos" en Great Vibes bordó, el dibujo del regalo, el
+// mensaje en Cinzel y el QR para transferir, enmarcado como una tarjeta
+// con esquinas doradas. Debajo, un botón para guardar el QR: desde el
+// celular no se puede escanear la propia pantalla, así que el invitado lo
+// guarda y lo abre desde la app del banco.
 
 // ── DATOS EDITABLES ───────────────────────────────────────────
-const titulo = "Sugerencia de Regalo";
-const aviso =
-    "¡Tu presencia es nuestro mejor regalo! Pero si deseas obsequiarnos algo puedes hacerlo de la siguiente manera:";
-const opcionSobres = "Lluvia de sobres";
-const opcionMesa = "Mesa de regalos";
-const textoBoton = "Ver Mesa";
-// FALTA: el link de la mesa de regalos. Se abre en otra pestaña, así el
-// invitado no pierde la invitación.
-const linkMesa = "#";
+const titulo = "Sugerencia de regalos";
+const mensaje = "Su mejor regalo es su presencia.";
+const mensajeQr =
+    "Pero si desean hacernos un obsequio, pueden realizarlo mediante QR:";
+const qr = "/imagenes/qr-regalo.png";
+const textoBoton = "Descargar QR";
+// Nombre con el que se guarda el QR en el celular del invitado
+const nombreArchivo = "QR-regalo-David-y-Leslie.png";
+const tituloSobres = "Lluvia de sobres";
+const textoSobres = "También habrá lluvia de sobres el día del evento.";
 // ──────────────────────────────────────────────────────────────
 ---
 
 <section id="sugerencia-regalo" class="seccion">
     <p class="titulo font-great-vibes">{titulo}</p>
-    <p class="aviso">{aviso}</p>
 
-    <div class="opcion">
-        <p class="rotulo">{opcionSobres}</p>
+    <img
+        src="/imagenes/regalo.png"
+        alt=""
+        width="661"
+        height="804"
+        aria-hidden="true"
+        loading="lazy"
+        class="dibujo-regalo"
+    />
+
+    <p class="mensaje">{mensaje}</p>
+    <span class="filete" aria-hidden="true"></span>
+    <p class="aviso">{mensajeQr}</p>
+
+    <!-- El QR en su tarjeta: filete dorado y esquinas -->
+    <div class="tarjeta-qr">
+        <span class="esquina esq-1" aria-hidden="true"></span>
+        <span class="esquina esq-2" aria-hidden="true"></span>
+        <span class="esquina esq-3" aria-hidden="true"></span>
+        <span class="esquina esq-4" aria-hidden="true"></span>
+        <img
+            src={qr}
+            alt="Código QR para el regalo"
+            width="600"
+            height="585"
+            loading="lazy"
+            class="qr"
+        />
+        <span class="brillo" aria-hidden="true"></span>
+    </div>
+
+    <a href={qr} download={nombreArchivo} class="boton">
+        {textoBoton}
+    </a>
+
+    <!-- La otra opción: lluvia de sobres en el evento -->
+    <div class="sobres">
+        <span class="separa" aria-hidden="true"><i></i></span>
         <img
             src="/imagenes/sobre2.png"
             alt=""
             width="799"
             height="520"
             aria-hidden="true"
-            class="dibujo dibujo-sobre"
+            loading="lazy"
+            class="dibujo-sobre"
         />
+        <p class="titulo-sobres font-great-vibes">{tituloSobres}</p>
+        <p class="aviso">{textoSobres}</p>
     </div>
-
-    <div class="opcion">
-        <p class="rotulo">{opcionMesa}</p>
-        <img
-            src="/imagenes/regalo.png"
-            alt=""
-            width="661"
-            height="804"
-            aria-hidden="true"
-            class="dibujo dibujo-regalo"
-        />
-    </div>
-
-    <a href={linkMesa} target="_blank" rel="noopener" class="boton"
-        >{textoBoton}</a
-    >
 </section>
 
 <style>
@@ -56,68 +81,194 @@ const linkMesa = "#";
         container-type: inline-size;
         position: relative;
         width: 100%;
-        padding: 8cqw 5cqw 12cqw;
+        padding: 8cqw 8cqw 12cqw;
         text-align: center;
     }
 
     .titulo {
         margin: 0;
         color: #7a2335;
-        font-size: 12cqw;
+        font-size: 13cqw;
         line-height: 1.15;
     }
 
-    .aviso {
-        margin: 3cqw auto 0;
-        font-family: "Cinzel", serif;
-        font-size: 4.4cqw;
-        line-height: 1.3;
-        letter-spacing: 0.02em;
+    .dibujo-regalo {
+        display: block;
+        width: 17cqw;
+        height: auto;
+        margin: 4cqw auto 0;
+    }
+
+    .mensaje {
+        margin: 5cqw 0 0;
+        font-family: "Cormorant Garamond", serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: 7.2cqw;
+        line-height: 1.2;
         color: #7a2335;
     }
 
-    .opcion {
-        margin-top: 8cqw;
-    }
-
-    .rotulo {
-        margin: 0;
-        font-family: "Cinzel", serif;
-        font-weight: 700;
-        font-size: 4.8cqw;
-        letter-spacing: 0.03em;
-        color: #6a1e2e;
-    }
-
-    .dibujo {
+    .filete {
         display: block;
+        width: 22cqw;
+        height: 1px;
+        margin: 3.5cqw auto;
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 138, 62, 0),
+            #b08a3e,
+            rgba(176, 138, 62, 0)
+        );
+    }
+
+    .aviso {
+        margin: 0 auto;
+        max-width: 84cqw;
+        font-family: "Cinzel", serif;
+        font-size: 4.8cqw;
+        line-height: 1.45;
+        letter-spacing: 0.02em;
+        color: #6e5a52;
+    }
+
+    /* ── La tarjeta del QR ─────────────────────────────────────── */
+    .tarjeta-qr {
+        position: relative;
+        overflow: hidden;
+        width: 62cqw;
+        margin: 7cqw auto 0;
+        padding: 5cqw;
+        background-image: linear-gradient(#ffffff, #ffffff);
+        box-shadow:
+            inset 0 0 0 1px rgba(176, 138, 62, 0.55),
+            inset 0 0 0 1.6cqw #ffffff,
+            inset 0 0 0 calc(1.6cqw + 1px) rgba(176, 138, 62, 0.3),
+            0 10px 26px rgba(122, 35, 53, 0.12);
+    }
+
+    .qr {
+        display: block;
+        width: 100%;
         height: auto;
-        margin: 5cqw auto 0;
-        user-select: none;
-        -webkit-user-drag: none;
+    }
+
+    /* Esquinas doradas en L, por dentro del filete */
+    .esquina {
+        position: absolute;
+        width: 6cqw;
+        height: 6cqw;
+        border-color: #b08a3e;
+        border-style: solid;
+        border-width: 0;
+    }
+
+    .esq-1 {
+        top: 2.4cqw;
+        left: 2.4cqw;
+        border-top-width: 1.5px;
+        border-left-width: 1.5px;
+    }
+
+    .esq-2 {
+        top: 2.4cqw;
+        right: 2.4cqw;
+        border-top-width: 1.5px;
+        border-right-width: 1.5px;
+    }
+
+    .esq-3 {
+        bottom: 2.4cqw;
+        left: 2.4cqw;
+        border-bottom-width: 1.5px;
+        border-left-width: 1.5px;
+    }
+
+    .esq-4 {
+        bottom: 2.4cqw;
+        right: 2.4cqw;
+        border-bottom-width: 1.5px;
+        border-right-width: 1.5px;
+    }
+
+    /* Un destello dorado que cruza la tarjeta una vez, al entrar */
+    .brillo {
+        position: absolute;
+        top: -10%;
+        bottom: -10%;
+        left: 0;
+        width: 40%;
+        pointer-events: none;
+        transform: translateX(-200%) skewX(-18deg);
+        background-image: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 236, 196, 0.55) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+    }
+
+    /* ── Lluvia de sobres ───────────────────────────────────────── */
+    .sobres {
+        margin-top: 10cqw;
+    }
+
+    /* Filete con un rombito en el medio, para separar del QR */
+    .separa {
+        position: relative;
+        display: block;
+        width: 46cqw;
+        height: 1px;
+        margin: 0 auto;
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 138, 62, 0),
+            #b08a3e,
+            rgba(176, 138, 62, 0)
+        );
+    }
+
+    .separa i {
+        position: absolute;
+        top: -1cqw;
+        left: 50%;
+        width: 2cqw;
+        height: 2cqw;
+        margin-left: -1cqw;
+        transform: rotate(45deg);
+        background-image: linear-gradient(#ffffff, #ffffff);
+        box-shadow: inset 0 0 0 1px #b08a3e;
     }
 
     .dibujo-sobre {
-        width: 25cqw;
+        display: block;
+        width: 26cqw;
+        height: auto;
+        margin: 8cqw auto 0;
     }
 
-    .dibujo-regalo {
-        width: 25cqw;
+    .titulo-sobres {
+        margin: 3cqw 0 2cqw;
+        color: #7a2335;
+        font-size: 10cqw;
+        line-height: 1.1;
     }
 
     .boton {
         display: inline-block;
-        margin-top: 12cqw;
-        padding: 1.8cqw 7.4cqw;
+        margin-top: 6cqw;
+        padding: 2.6cqw 7cqw;
         border-radius: 999px;
         font-family: "Cinzel", serif;
+        font-weight: 500;
         font-size: 4.2cqw;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.12em;
         text-decoration: none;
         color: #f7f2e6;
-        /* Como imagen y no como color: el modo oscuro forzado la respeta */
-        background-image: linear-gradient(#7a2335, #6f1f30);
-        box-shadow: 0 4px 10px rgba(70, 20, 30, 0.25);
+        background-image: linear-gradient(180deg, #7a2335 0%, #6f1f30 100%);
+        box-shadow:
+            inset 0 0 0 1px rgba(232, 210, 160, 0.5),
+            0 6px 14px rgba(122, 35, 53, 0.22);
     }
 </style>
 
@@ -134,42 +285,158 @@ const linkMesa = "#";
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
             return;
 
-        // Encabezado: entra apenas se asoma la sección
-        gsap.fromTo(
-            seccion.querySelectorAll(".titulo, .aviso"),
-            { opacity: 0, y: 14 },
-            {
-                opacity: 1,
-                y: 0,
-                duration: 0.9,
-                stagger: 0.2,
-                ease: "power2.out",
+        // Encabezado: título, el regalo que cae con un rebote suave, y el
+        // mensaje con su filete
+        const encabezado = gsap.timeline({
+            scrollTrigger: {
+                trigger: seccion,
+                start: "top 80%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        encabezado
+            .fromTo(
+                seccion.querySelector(".titulo"),
+                { opacity: 0, y: 14 },
+                { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" },
+            )
+            .fromTo(
+                seccion.querySelector(".dibujo-regalo"),
+                { opacity: 0, y: -16, rotation: -8 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    rotation: 0,
+                    duration: 1,
+                    ease: "back.out(2)",
+                },
+                0.3,
+            )
+            .fromTo(
+                seccion.querySelector(".mensaje"),
+                { opacity: 0, y: 12 },
+                { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" },
+                0.6,
+            )
+            .fromTo(
+                seccion.querySelector(".filete"),
+                { scaleX: 0 },
+                { scaleX: 1, duration: 0.8, ease: "power2.out" },
+                0.8,
+            )
+            .fromTo(
+                seccion.querySelector(".aviso"),
+                { opacity: 0, y: 12 },
+                { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" },
+                0.95,
+            );
+
+        // La tarjeta del QR: sube, se dibujan las esquinas y la cruza un
+        // destello
+        const tarjeta = seccion.querySelector(".tarjeta-qr");
+        if (tarjeta) {
+            gsap.timeline({
                 scrollTrigger: {
-                    trigger: seccion,
-                    start: "top 80%",
+                    trigger: tarjeta,
+                    start: "top 85%",
                     toggleActions: "play none none reset",
                 },
-            },
-        );
+            })
+                .fromTo(
+                    tarjeta,
+                    { opacity: 0, y: 24, scale: 0.96 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 1,
+                        ease: "power3.out",
+                    },
+                )
+                .fromTo(
+                    tarjeta.querySelectorAll(".esquina"),
+                    { opacity: 0, scale: 0.4 },
+                    {
+                        opacity: 1,
+                        scale: 1,
+                        duration: 0.6,
+                        stagger: 0.08,
+                        ease: "back.out(2)",
+                    },
+                    0.4,
+                )
+                .fromTo(
+                    tarjeta.querySelector(".brillo"),
+                    { xPercent: -200, skewX: -18 },
+                    {
+                        xPercent: 350,
+                        skewX: -18,
+                        duration: 1.2,
+                        ease: "power2.inOut",
+                    },
+                    0.7,
+                );
+        }
 
-        // Cada opción y el botón entran cuando llegan a la pantalla: la
-        // sección es alta y con un solo disparador ya habrían terminado
-        seccion.querySelectorAll(".opcion, .boton").forEach((el) => {
+        // Lluvia de sobres: el sobre baja flotando y después el texto
+        const sobres = seccion.querySelector(".sobres");
+        if (sobres) {
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: sobres,
+                    start: "top 85%",
+                    toggleActions: "play none none reset",
+                },
+            })
+                .fromTo(
+                    sobres.querySelector(".separa"),
+                    { scaleX: 0 },
+                    { scaleX: 1, duration: 0.8, ease: "power2.out" },
+                )
+                .fromTo(
+                    sobres.querySelector(".dibujo-sobre"),
+                    { opacity: 0, y: -24, rotation: -10 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        rotation: 0,
+                        duration: 1.2,
+                        ease: "back.out(1.6)",
+                    },
+                    0.3,
+                )
+                .fromTo(
+                    sobres.querySelectorAll(".titulo-sobres, .aviso"),
+                    { opacity: 0, y: 12 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.9,
+                        stagger: 0.18,
+                        ease: "power2.out",
+                    },
+                    0.7,
+                );
+        }
+
+        const boton = seccion.querySelector(".boton");
+        if (boton) {
             gsap.fromTo(
-                el,
-                { opacity: 0, y: 20 },
+                boton,
+                { opacity: 0, y: 16 },
                 {
                     opacity: 1,
                     y: 0,
                     duration: 0.9,
                     ease: "power2.out",
                     scrollTrigger: {
-                        trigger: el,
-                        start: "top 88%",
+                        trigger: boton,
+                        start: "top 92%",
                         toggleActions: "play none none reset",
                     },
                 },
             );
-        });
+        }
     });
 </script>

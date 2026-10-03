@@ -55,10 +55,10 @@
 
 <style>
     /*
-       Los mismos colores que el resto de la invitación: verde lleno,
+       Los mismos colores que el resto de la invitación: guindo con brillo,
        filete dorado y la nota en crema.
 
-       El verde va escrito como degradado de un solo color y no como
+       El guindo va escrito como degradado y no como
        background-color a propósito: el modo oscuro forzado de algunos
        celulares recalcula los colores pero respeta las imágenes, y un
        degradado cuenta como imagen. Así el botón se ve igual en todos.
@@ -79,14 +79,19 @@
         height: 46px;
         padding: 0;
         border-radius: 50%;
-        border: 1px solid rgba(201, 164, 95, 0.75);
-        background-image: linear-gradient(#075843, #075843);
+        border: 1px solid rgba(214, 182, 120, 0.9);
+        background-image: radial-gradient(
+            circle at 35% 30%,
+            #9a3448 0%,
+            #7a2335 55%,
+            #5e1828 100%
+        );
         color: #f6efe1;
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
         /* El dedo lo aprieta entero, también en el filo */
         touch-action: manipulation;
-        box-shadow: 0 4px 12px rgba(7, 88, 67, 0.38);
+        box-shadow: 0 4px 12px rgba(122, 35, 53, 0.38);
         /* Escondido hasta que haya melodía que controlar */
         opacity: 0;
         pointer-events: none;
@@ -105,12 +110,12 @@
 
     .boton-musica:active {
         transform: scale(0.92);
-        box-shadow: 0 2px 6px rgba(7, 88, 67, 0.4);
+        box-shadow: 0 2px 6px rgba(122, 35, 53, 0.4);
     }
 
     @media (hover: hover) {
         .boton-musica:hover {
-            box-shadow: 0 6px 16px rgba(7, 88, 67, 0.45);
+            box-shadow: 0 6px 16px rgba(122, 35, 53, 0.45);
         }
     }
 

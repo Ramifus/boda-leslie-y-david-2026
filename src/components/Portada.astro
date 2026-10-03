@@ -8,7 +8,7 @@
 // el único momento en que el navegador deja sonar un audio, porque hace
 // falta un gesto de la persona. Desde ahí la maneja BotonMusica.astro.
 // ── DATOS EDITABLES ───────────────────────────────────────────
-const novios = "Leslie & David";
+const novios = "David & Leslie";
 const llamada = "Da clic al sobre para abrir";
 
 const tituloTarjeta = "Nuestra Boda";
@@ -27,7 +27,7 @@ const frase2 = "este día contigo";
     style="
     position: fixed;
     inset: 0;
-    background-image: linear-gradient(#ffffff, #ffffff);
+    background-image: linear-gradient(#f5efe7, #f5efe7);
     z-index: 8499;
     opacity: 1;
     pointer-events: none;
@@ -48,14 +48,21 @@ const frase2 = "este día contigo";
     <div class="marco">
         <!-- Foto de arriba: se funde con el papel por abajo -->
         <div class="foto" id="portada-foto" aria-hidden="true">
-            <img src="/imagenes/foto1.png" alt="" />
+            <img src="/imagenes/foto1.jpeg" alt="" />
         </div>
 
         <!-- Aire para que los nombres caigan sobre el fundido de la foto -->
         <div class="aire-arriba"></div>
 
         <div class="encabezado" id="encabezado-portada">
-            <p class="novios font-great-vibes">{novios}</p>
+            <p class="novios font-great-vibes">
+                {novios.split("&").map((parte, i) => (
+                    <>
+                        {i > 0 && <em class="amp">&</em>}
+                        {parte}
+                    </>
+                ))}
+            </p>
             <p class="llamada" id="llamada-portada">{llamada}</p>
         </div>
 
@@ -251,6 +258,12 @@ const frase2 = "este día contigo";
         color: #7a2335;
         font-size: 13cqw;
         line-height: 1.15;
+    }
+
+    /* El "&" más chico que los nombres: a tamaño completo pesaba demasiado */
+    .amp {
+        font-style: normal;
+        font-size: 0.7em;
     }
 
     .llamada {

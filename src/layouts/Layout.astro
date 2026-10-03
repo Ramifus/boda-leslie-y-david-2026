@@ -22,7 +22,7 @@ const { title } = Astro.props;
 */
 const miniatura = new URL('/imagenes/miniatura-whatsapp.jpg', Astro.site).href;
 const paginaActual = new URL(Astro.url.pathname, Astro.site).href;
-const tituloPreview = 'Leslie & David';
+const tituloPreview = 'David & Leslie';
 ---
 
 <!doctype html>
@@ -104,15 +104,15 @@ const tituloPreview = 'Leslie & David';
         margin: 0 auto;
         min-height: 100vh;
         /*
-           Papel blanco liso de punta a punta. Antes acá iba la acuarela
+           Papel crema liso de punta a punta (#f5efe7). Antes acá iba la acuarela
            (fondo.webp); se sacó a pedido.
 
-           El blanco va declarado como imagen y no como color: el modo
+           El fondo va declarado como imagen y no como color: el modo
            oscuro forzado de algunos celulares oscurece los colores pero
            respeta las imágenes, así que escrito así la hoja no se vuelve
            gris ni negra.
         */
-        background-image: linear-gradient(#ffffff, #ffffff);
+        background-image: linear-gradient(#f5efe7, #f5efe7);
         background-repeat: no-repeat;
         background-attachment: fixed;
         background-size: cover;
