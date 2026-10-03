@@ -1,303 +1,83 @@
 ---
 // src/components/Foto1.astro
-// El sobre abierto: atrás la tapa, adentro dos fotos tipo polaroid y el
-// marco de encaje con la invitación, adelante el bolsillo con el lacre.
-// Todo lo de adentro va entre sobreatras y sobreadelante, así parece que
-// sale del sobre.
+// Galería de cuatro fotos en cuadrícula de 2x2, separadas por una línea
+// fina de papel, con el sello de lacre en el cruce del medio.
+//
+// Las fotos se cambian en la lista de abajo, una por casilla.
 
 // ── DATOS EDITABLES ───────────────────────────────────────────
-const fotoArriba = "/imagenes/foto3.jpeg";
-const altArriba = "David y Leslie bailando";
-const fotoAbajo = "/imagenes/foto4.jpeg";
-const altAbajo = "David y Leslie abrazados";
-const invitacion = ["Estás invitado", "a nuestra boda"];
-const novio = "David &";
-const novia = "Leslie";
-const fechaMes = "dic";
-const fechaDia = "19";
-const fechaAnio = "2026";
+const fotos = [
+    { src: "/imagenes/galeria1.jpeg", alt: "Los novios abrazados" },
+    { src: "/imagenes/galeria2.jpeg", alt: "Los novios dándose un beso" },
+    { src: "/imagenes/galeria3.jpeg", alt: "Los novios caminando juntos" },
+    { src: "/imagenes/galeria4.jpeg", alt: "Los novios sonriendo" },
+];
 // ──────────────────────────────────────────────────────────────
 ---
 
-<section id="sobre-fotos" class="seccion">
-    <div class="escena">
-        <!-- 1 · Atrás: el sobre con la tapa abierta -->
-        <img
-            src="/imagenes/sobreatras.webp"
-            alt=""
-            width="900"
-            height="1107"
-            aria-hidden="true"
-            loading="lazy"
-            class="sobre-atras"
-        />
+<section id="galeria-fotos" class="seccion">
+    <div class="grilla">
+        {
+            fotos.map((f) => (
+                <div class="casilla">
+                    <img src={f.src} alt={f.alt} loading="lazy" class="foto" />
+                </div>
+            ))
+        }
 
-        <!-- 2 · Las flores asomando por detrás de las fotos -->
+        <!-- El sello en el cruce de las cuatro fotos -->
         <img
-            src="/imagenes/florblanco.webp"
+            src="/imagenes/boton.png"
             alt=""
-            width="279"
-            height="700"
+            width="192"
+            height="177"
             aria-hidden="true"
-            loading="lazy"
-            class="flor flor-blanca"
-        />
-        <img
-            src="/imagenes/florblanco.webp"
-            alt=""
-            width="279"
-            height="700"
-            aria-hidden="true"
-            loading="lazy"
-            class="flor flor-blanca-der"
-        />
-        <img
-            src="/imagenes/flor3.webp"
-            alt=""
-            width="450"
-            height="548"
-            aria-hidden="true"
-            loading="lazy"
-            class="flor flor-roja"
-        />
-
-        <!-- 3 · Las dos polaroids -->
-        <figure class="polaroid polaroid-arriba">
-            <img src={fotoArriba} alt={altArriba} loading="lazy" />
-        </figure>
-        <figure class="polaroid polaroid-abajo">
-            <img src={fotoAbajo} alt={altAbajo} loading="lazy" />
-        </figure>
-
-        <!-- 4 · El marco de encaje con la invitación -->
-        <div class="marco">
-            <img
-                src="/imagenes/marcoblanco.webp"
-                alt=""
-                width="600"
-                height="834"
-                aria-hidden="true"
-                loading="lazy"
-                class="marco-img"
-            />
-            <div class="marco-texto">
-                <p class="invitacion">
-                    <span>{invitacion[0]}</span>
-                    <span>{invitacion[1]}</span>
-                </p>
-                <p class="nombres font-great-vibes">
-                    <span>{novio}</span>
-                    <span>{novia}</span>
-                </p>
-                <p class="fecha">
-                    <span>{fechaMes}</span>
-                    <i aria-hidden="true"></i>
-                    <span class="fecha-dia">{fechaDia}</span>
-                    <i aria-hidden="true"></i>
-                    <span>{fechaAnio}</span>
-                </p>
-            </div>
-        </div>
-
-        <!-- 5 · Adelante: el bolsillo del sobre con el lacre -->
-        <img
-            src="/imagenes/sobreadelante.webp"
-            alt=""
-            width="900"
-            height="704"
-            aria-hidden="true"
-            loading="lazy"
-            class="sobre-adelante"
+            class="sello"
         />
     </div>
 </section>
 
 <style>
-    /*
-       Todas las medidas en cqw: la escena se dibuja igual en cualquier
-       ancho de columna. El papel va como degradado y no como color: el
-       modo oscuro forzado oscurece colores pero respeta las imágenes.
-    */
     .seccion {
+        /* Las medidas se toman contra el ancho de la sección */
         container-type: inline-size;
         position: relative;
         width: 100%;
-        overflow: hidden;
-        background-image: linear-gradient(#f5efe7, #f5efe7);
-        padding: 4cqw 0 6cqw;
+        padding: 6cqw 4cqw 8cqw;
     }
 
-    .escena {
+    .grilla {
         position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.6cqw;
+    }
+
+    .casilla {
+        overflow: hidden;
+        /* Vertical, como en el diseño */
+        aspect-ratio: 4 / 5;
+        box-shadow: 0 4px 12px rgba(40, 30, 20, 0.15);
+    }
+
+    .foto {
+        display: block;
         width: 100%;
-        height: 150cqw;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 40%;
     }
 
-    .escena > * {
+    /* Centrado sin transform: la animación de entrada usa scale */
+    .sello {
         position: absolute;
-        margin: 0;
-    }
-
-    /* El sobre: 90cqw de ancho, las dos partes apoyadas abajo */
-    .sobre-atras {
-        z-index: 1;
-        left: 5cqw;
-        bottom: 0;
-        width: 90cqw;
-        height: auto;
-    }
-
-    .sobre-adelante {
-        z-index: 6;
-        left: 5cqw;
-        bottom: 0;
-        width: 90cqw;
-        height: auto;
-        filter: drop-shadow(0 -2px 4px rgba(60, 45, 30, 0.12));
-    }
-
-    .flor {
+        z-index: 2;
+        top: calc(50% - 9cqw);
+        left: calc(50% - 9.5cqw);
+        width: 19cqw;
         height: auto;
         pointer-events: none;
-    }
-
-    .flor-blanca {
-        z-index: 2;
-        left: 4cqw;
-        top: 0;
-        width: 24cqw;
-        transform: rotate(-14deg);
-    }
-
-    .flor-blanca-der {
-        z-index: 2;
-        right: 1cqw;
-        top: 14cqw;
-        width: 17cqw;
-        transform: scaleX(-1) rotate(-10deg);
-    }
-
-    .flor-roja {
-        z-index: 2;
-        left: 7cqw;
-        top: 13cqw;
-        width: 25cqw;
-        transform: rotate(-8deg);
-    }
-
-    /* Polaroid: borde blanco parejo y más ancho abajo */
-    .polaroid {
-        background-image: linear-gradient(#fdfcf9, #fdfcf9);
-        padding: 2.2cqw 2.2cqw 6cqw;
-        box-shadow: 0 3px 10px rgba(40, 30, 20, 0.22);
-    }
-
-    .polaroid img {
-        display: block;
-        width: 100%;
-        aspect-ratio: 1 / 1.02;
-        object-fit: cover;
-    }
-
-    .polaroid-arriba {
-        z-index: 3;
-        left: 31cqw;
-        top: 6cqw;
-        width: 52cqw;
-        transform: rotate(4deg);
-    }
-
-    .polaroid-arriba img {
-        object-position: center 30%;
-    }
-
-    .polaroid-abajo {
-        z-index: 4;
-        left: 47cqw;
-        top: 52cqw;
-        width: 46cqw;
-        transform: rotate(3deg);
-    }
-
-    .polaroid-abajo img {
-        object-position: center 25%;
-    }
-
-    /* El marco de encaje, apenas inclinado */
-    .marco {
-        z-index: 5;
-        left: 5cqw;
-        top: 31cqw;
-        width: 54cqw;
-        aspect-ratio: 600 / 834;
-        transform: rotate(-3deg);
-        filter: drop-shadow(0 3px 6px rgba(40, 30, 20, 0.2));
-    }
-
-    .marco-img {
-        display: block;
-        width: 100%;
-        height: auto;
-    }
-
-    /* El texto se arma en la mitad de arriba del óvalo: la de abajo la
-       tapa el bolsillo del sobre */
-    .marco-texto {
-        position: absolute;
-        left: 12%;
-        right: 12%;
-        top: 26%;
-        text-align: center;
-    }
-
-    .invitacion {
-        margin: 0;
-        font-family: "Cinzel", serif;
-        font-weight: 400;
-        font-size: 3.1cqw;
-        line-height: 1.35;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #6e5a52;
-    }
-
-    .invitacion span,
-    .nombres span {
-        display: block;
-    }
-
-    .nombres {
-        margin: 2cqw 0 0;
-        font-size: 10.5cqw;
-        line-height: 1;
-        color: #7a2335;
-    }
-
-    .fecha {
-        margin: 3cqw 0 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 2.2cqw;
-        font-family: "Cinzel", serif;
-        font-weight: 400;
-        font-size: 3cqw;
-        line-height: 1;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: #6e5a52;
-    }
-
-    .fecha i {
-        display: block;
-        width: 1px;
-        height: 5cqw;
-        background-image: linear-gradient(#b9a79c, #b9a79c);
-    }
-
-    .fecha-dia {
-        font-size: 5.4cqw;
-        letter-spacing: 0.04em;
+        filter: drop-shadow(0 4px 6px rgba(40, 30, 10, 0.45));
     }
 </style>
 
@@ -308,63 +88,54 @@ const fechaAnio = "2026";
     gsap.registerPlugin(ScrollTrigger);
 
     document.addEventListener("DOMContentLoaded", () => {
-        const seccion = document.getElementById("sobre-fotos");
+        const seccion = document.getElementById("galeria-fotos");
         if (!seccion) return;
 
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
             return;
 
-        const sobre = seccion.querySelectorAll(
-            ".sobre-atras, .sobre-adelante",
-        );
-        const flores = seccion.querySelectorAll(".flor");
-        const polaroids = seccion.querySelectorAll(".polaroid");
-        const marco = seccion.querySelector(".marco");
+        const casillas = seccion.querySelectorAll(".casilla");
+        const fotos = seccion.querySelectorAll(".foto");
+        const sello = seccion.querySelector(".sello");
 
         const tl = gsap.timeline({
             scrollTrigger: {
                 trigger: seccion,
-                start: "top 75%",
+                start: "top 78%",
                 toggleActions: "play none none reset",
             },
         });
 
-        // El sobre aparece, y de adentro suben el marco y las fotos.
-        // Solo se anima y + opacity: las rotaciones quedan en el CSS.
+        // Las cuatro fotos aparecen una tras otra, con un zoom suave
         tl.fromTo(
-            sobre,
-            { opacity: 0, y: 24 },
-            { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+            casillas,
+            { opacity: 0, y: 20 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.9,
+                stagger: 0.15,
+                ease: "power2.out",
+            },
         )
             .fromTo(
-                marco,
-                { opacity: 0, y: () => seccion.offsetWidth * 0.28 },
-                { opacity: 1, y: 0, duration: 1, ease: "power3.out" },
-                0.5,
+                fotos,
+                { scale: 1.12 },
+                { scale: 1, duration: 2, stagger: 0.15, ease: "power2.out" },
+                0,
             )
+            // Y al final el sello cae en el cruce
             .fromTo(
-                polaroids,
-                { opacity: 0, y: () => seccion.offsetWidth * 0.34 },
+                sello,
+                { opacity: 0, scale: 1.7, rotate: -12 },
                 {
                     opacity: 1,
-                    y: 0,
-                    duration: 1,
-                    stagger: 0.2,
-                    ease: "power3.out",
+                    scale: 1,
+                    rotate: 0,
+                    duration: 0.7,
+                    ease: "back.out(2)",
                 },
-                0.75,
-            )
-            .fromTo(
-                flores,
-                { opacity: 0, y: 14 },
-                {
-                    opacity: 1,
-                    y: 0,
-                    duration: 1,
-                    stagger: 0.12,
-                    ease: "power2.out",
-                },
-                1.2,
+                0.8,
             );
     });
 </script>
