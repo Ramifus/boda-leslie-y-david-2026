@@ -52,3 +52,17 @@ const { pases = 0 } = Astro.props;
 
 <!-- El control flotante de la esquina: la nota que pausa y reanuda la melodía -->
 <BotonMusica />
+
+<style>
+    /*
+       Cada sección mide su propio relleno en cqw. Sin un contenedor por
+       encima, ese cqw se calcula contra la pantalla entera: en el celular
+       da igual (la pantalla ES la columna), pero en la computadora el
+       relleno se agrandaba hasta 3 veces y quedaban huecos enormes entre
+       secciones. Con esto el cqw se mide contra la columna de 430px, igual
+       que en el celular.
+    */
+    #contenido-principal {
+        container-type: inline-size;
+    }
+</style>
